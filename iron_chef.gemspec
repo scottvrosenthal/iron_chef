@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Making cloud server provisioning enjoyable.}
   gem.homepage      = "https://github.com/scottvrosenthal/iron_chef"
   gem.license       = "MIT"
-  gem.files         = `git ls-files | grep -vE '(jenkins|.gitmodules|.ruby-version|.ruby-gemset)'`.split("\n")
+  gem.files         = `git ls-files | grep -vE '(jenkins|.gitmodules|.gitignore|.ruby-version|.ruby-gemset)'`.split("\n")
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]

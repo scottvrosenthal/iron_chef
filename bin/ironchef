@@ -4,9 +4,6 @@ require 'rubygems'
 require 'optparse'
 require 'fileutils'
 
-$LOAD_PATH << File.expand_path("../..", __FILE__)
-require 'lib/iron_chef'
-
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [devops_project_name]"
 
@@ -26,9 +23,7 @@ end
 
 
 if ARGV.empty?
-  abort "Please specify the devops project directory , e.g. `#{File.basename($0)}-devops .'"
-elsif !File.directory?(ARGV.first)
-  abort "`#{ARGV.first}' is not a directory."
+  abort "Please specify the devops project directory , e.g. '#{File.basename($0)}-devops'"
 elsif ARGV.length > 1
   abort "Too many arguments; please specify only the devops project directory."
 end
@@ -39,16 +34,39 @@ def unindent(string)
 end
 
 files = {
-  ".gitignore" => unident(<<-FILE),
+  ".gitignore" => unindent(<<-FILE),
     /tmp
   FILE
   
-  "Gemfile" => unident(<<-FILE),
-  # vi:ft=ruby:
-
-  source 'http://rubygems.org'
-
-  gem 'iron_chef'
+  "Gemfile" => unindent(<<-FILE),
+    source 'https://rubygems.org'
+  
+    gem 'iron_chef'
+  FILE
+  
+  "Capfile" => unindent(<<-FILE),
+    load 'deploy'
+    load 'config/deploy'
+  
+  FILE
+  
+  "config/deploy.rb" => unindent(<<-FILE),
+    require 'rubygems'
+    require 'iron_chef'
+    
+    set :default_chef_attributes, false
+    # don't forget to run locally -> ssh-add app_keypair_ec2.pem
+    #ssh_options[:keys] = File.expand_path('your-local-path/app_keypair_ec2.pem')
+    ssh_options[:paranoid] = false
+    ssh_options[:keys_only] = true
+    ssh_options[:user_known_hosts_file] = []
+    ssh_options[:config] = false
+    ssh_options[:forward_agent] = true
+    default_run_options[:pty] = true
+    #set :user, 'ec2-user'
+    set :use_sudo, false
+    
+    server '0.0.0.0', :web, :app, :db
   FILE
   
   "data_bags/.gitkeep" => '',
@@ -79,8 +97,6 @@ end
 Dir.chdir(base) do
   puts   'Installing gem dependencies'
   system 'bundle'
-
-  puts   'running capify'
-  system 'capify .'
+  
   puts "Created Iron Chef devops project '#{base}'"
 end
