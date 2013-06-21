@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'optparse'
+require 'fileutils'
+
+$LOAD_PATH << File.expand_path("../..", __FILE__)
+require 'lib/iron_chef'
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [devops_project_name]"
+
+  opts.on("-h", "--help", "Displays this help info") do
+    puts opts
+    exit 0
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
+end
+
+
+if ARGV.empty?
+  abort "Please specify the devops project directory , e.g. `#{File.basename($0)}-devops .'"
+elsif !File.directory?(ARGV.first)
+  abort "`#{ARGV.first}' is not a directory."
+elsif ARGV.length > 1
+  abort "Too many arguments; please specify only the devops project directory."
+end
+
+def unindent(string)
+  indentation = string[/\A\s*/]
+  string.strip.gsub(/^#{indentation}/, "")
+end
+
+files = {
+  ".gitignore" => unident(<<-FILE),
+    /tmp
+  FILE
+  
+  "Gemfile" => unident(<<-FILE),
+  # vi:ft=ruby:
+
+  source 'http://rubygems.org'
+
+  gem 'iron_chef'
+  FILE
+  
+  "data_bags/.gitkeep" => '',
+  "nodes/.gitkeep" => '',
+  "roles/.gitkeep" => '',
+  "cookbooks/.gitkeep" => ''
+}
+base = ARGV.shift
+
+Dir.mkdir(base)
+
+files.each do |file, content|
+  file = File.join(base, file)
+  if File.exists?(file)
+    warn "[skip] '#{file}' already exists"
+  elsif File.exists?(file.downcase)
+    warn "[skip] '#{file.downcase}' exists, which could conflict with `#{file}'"
+  else
+    unless File.exists?(File.dirname(file))
+      puts "[add] making directory '#{File.dirname(file)}'"
+      FileUtils.mkdir(File.dirname(file))
+    end
+    puts "[add] writing '#{file}'"
+    File.open(file, "w") { |f| f.write(content) }
+  end
+end
+
+Dir.chdir(base) do
+  puts   'Installing gem dependencies'
+  system 'bundle'
+
+  puts   'running capify'
+  system 'capify .'
+  puts "Created Iron Chef devops project '#{base}'"
+end
