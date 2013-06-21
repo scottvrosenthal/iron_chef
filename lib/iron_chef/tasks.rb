@@ -5,7 +5,7 @@ Capistrano::Configuration.instance.load do
     set :chef_version, '=11.4.0'
     set :chef_source, '.'
     set :chef_destination, "/tmp/chef"
-    set :chef_cookbooks,   %w(site-cookbooks)
+    set :chef_cookbooks,   %w(site-cookbooks cookbooks)
     set :chef_log_level, 'info'    
     set :chef_destination, '/tmp/chef'
     set :chef_command, 'chef-solo -c solo.rb'

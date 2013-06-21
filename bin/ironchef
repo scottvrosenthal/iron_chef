@@ -72,11 +72,12 @@ files = {
   "data_bags/.gitkeep" => '',
   "nodes/.gitkeep" => '',
   "roles/.gitkeep" => '',
-  "cookbooks/.gitkeep" => ''
+  "cookbooks/.gitkeep" => '',
+  "site-cookbooks/.gitkeep" => ''
 }
 base = ARGV.shift
 
-Dir.mkdir(base)
+FileUtils.mkdir_p(base)
 
 files.each do |file, content|
   file = File.join(base, file)
