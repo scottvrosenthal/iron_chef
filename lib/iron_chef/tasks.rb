@@ -1,4 +1,5 @@
 require 'json'
+require 'fileutils'
 
 Capistrano::Configuration.instance.load do
   namespace :chef do
@@ -17,6 +18,8 @@ Capistrano::Configuration.instance.load do
     set :chef_write_to_file, nil
     set :chef_runner, nil
     set :chef_lock_file, '/tmp/chef.lock'
+
+    ## begin bootstrap namespace ##
 
     namespace :bootstrap do
 
@@ -60,7 +63,10 @@ Capistrano::Configuration.instance.load do
           run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
         end
       end
+
     end
+
+    ## end bootstrap namespace ##
 
     desc "Pushes the current chef configuration to the server."
     task :update_code, :except => { :nochef => true } do
