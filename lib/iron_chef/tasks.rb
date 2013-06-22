@@ -20,7 +20,7 @@ Capistrano::Configuration.instance.load do
 
     namespace :bootstrap do
 
-      desc "installs chef via apt on an ubuntu host"
+      desc "Installs chef via apt on an ubuntu host."
       task :ubuntu do
         run "mkdir -p #{chef_destination}"
         script = <<-BASH
@@ -37,7 +37,7 @@ Capistrano::Configuration.instance.load do
       end
 
       %w(redhat centos).each do |host_os|
-        desc "installs chef via yum on a #{host_os} hat host"
+        desc "Installs chef via yum on a #{host_os} host."
         task host_os do
           run "mkdir -p #{chef_destination}"
           script = <<-BASH
@@ -58,18 +58,18 @@ Capistrano::Configuration.instance.load do
           BASH
           put script, "/tmp/chef-install.sh", :via => :scp
           run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
-        end        
+        end
       end
     end
 
-    desc "pushes the current chef configuration to the server"
+    desc "Pushes the current chef configuration to the server."
     task :update_code, :except => { :nochef => true } do
       iron_chef.rsync
       generate_node_json
       generate_solo_rb
     end
 
-    desc "runs chef with --why-run flag to to understand the decisions it makes"
+    desc "Runs chef with --why-run flag to to understand the decisions it makes."
     task :why_run, :except => { :nochef => true } do
       iron_chef.lock
       transaction do
@@ -81,7 +81,7 @@ Capistrano::Configuration.instance.load do
       end
     end
 
-    desc "applies the current chef config to the server"
+    desc "Applies the current chef config to the server."
     task :apply, :except => { :nochef => true } do
       iron_chef.lock
       transaction do
@@ -93,12 +93,12 @@ Capistrano::Configuration.instance.load do
       end
     end
 
-    desc "clears the chef lockfile on the server."
+    desc "Clears the chef lockfile on the server."
     task :unlock, :except => { :nochef => true } do
       iron_chef.unlock
     end
     
-    desc "clears the chef destination folder on the server."
+    desc "Clears the chef destination folder on the server."
     task :clear, :except => { :nochef => true } do
       run iron_chef.prepare_sudo_cmd("rm -rf #{chef_destination}/*")
     end    

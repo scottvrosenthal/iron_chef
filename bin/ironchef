@@ -48,7 +48,6 @@ files = {
   FILE
   
   "Capfile" => unindent(<<-FILE),
-    # load 'deploy' # default capistrano tasks for app deployment
     require 'iron_chef'
     load 'config/deploy'
   
