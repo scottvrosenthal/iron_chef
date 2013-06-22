@@ -33,49 +33,62 @@ def unindent(string)
   string.strip.gsub(/^#{indentation}/, "")
 end
 
+base = ARGV.shift
+
 files = {
   ".gitignore" => unindent(<<-FILE),
     /tmp
+    
   FILE
   
   "Gemfile" => unindent(<<-FILE),
     source 'https://rubygems.org'
   
     gem 'iron_chef'
+    
   FILE
   
   "Capfile" => unindent(<<-FILE),
-    load 'deploy'
+    # load 'deploy' # default capistrano tasks for app deployment
+    require 'iron_chef'
     load 'config/deploy'
   
   FILE
   
   "config/deploy.rb" => unindent(<<-FILE),
-    require 'rubygems'
-    require 'iron_chef'
+    require 'capistrano/ext/multistage'
+    
     
     set :default_chef_attributes, false
-    # don't forget to run locally -> ssh-add app_keypair_ec2.pem
-    #ssh_options[:keys] = File.expand_path('your-local-path/app_keypair_ec2.pem')
-    ssh_options[:paranoid] = false
-    ssh_options[:keys_only] = true
-    ssh_options[:user_known_hosts_file] = []
-    ssh_options[:config] = false
-    ssh_options[:forward_agent] = true
+    # don't forget to run locally -> ssh-add xxxxx_keypair_ec2.pem
+    ssh_options[:keys] = File.expand_path('your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
     default_run_options[:pty] = true
-    #set :user, 'ec2-user'
+    set :user, 'xxxx-username-in-ec2-xxxx'
     set :use_sudo, false
     
-    server '0.0.0.0', :web, :app, :db
+    
+  FILE
+  
+  "config/deploy/staging.rb" => unindent(<<-FILE),
+  # anything that's 
+  
+  FILE
+  
+  "config/deploy/production.rb" => unindent(<<-FILE),
+  #role :web, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com"
+  #role :app, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com"
+  #role :db, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com" , :primary => true
+  #role :db, "your slave db-server here"
+  
   FILE
   
   "data_bags/.gitkeep" => '',
   "nodes/.gitkeep" => '',
   "roles/.gitkeep" => '',
   "cookbooks/.gitkeep" => '',
-  "site-cookbooks/.gitkeep" => ''
+  "site-cookbooks/.gitkeep" => '',
+  "README.md" => "<%= base %>"
 }
-base = ARGV.shift
 
 FileUtils.mkdir_p(base)
 

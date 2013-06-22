@@ -5,6 +5,7 @@ require 'iron_chef/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "iron_chef"
+  gem.platform      = Gem::Platform::RUBY
   gem.version       = IronChef::VERSION
   gem.authors       = ["Scott Rosenthal"]
   gem.email         = ["sr7575@gmail.com"]
@@ -17,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_dependency 'capistrano', '>= 2.5.21'
+  gem.add_dependency 'capistrano', '>= 2.15.4'
   gem.add_dependency 'json'
 
   gem.add_development_dependency 'minitest'

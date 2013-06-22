@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     iron_chef (0.0.1)
-      capistrano (>= 2.5.21)
+      capistrano (>= 2.15.4)
       json
 
 GEM

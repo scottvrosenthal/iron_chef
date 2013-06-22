@@ -24,15 +24,15 @@ module IronChef
 
     def prepare
       run "mkdir -p #{chef_destination}"
-      run "#{try_sudo} chown -R $USER: #{chef_destination}"
+      run "chown -R $USER: #{chef_destination}"
     end
 
     def why_run
       chef(:why_run)
     end
 
-    def cook
-      chef(:cook)
+    def apply
+      chef(:apply)
     end
 
     def lock
@@ -59,7 +59,8 @@ fi
     end
 
     def chef(command = :why_run)
-      chef_cmd = "cd #{chef_destination} && #{sudo_cmd} #{chef_command} #{chef_parameters}"
+      prepare_chef_cmd = prepare_sudo_cmd("#{chef_command} #{chef_parameters}")
+      chef_cmd = "cd #{chef_destination} && #{prepare_chef_cmd}"
       flag = command == :why_run ? '--why-run' : ''
 
       writer = if chef_stream_output
@@ -84,13 +85,9 @@ fi
       "\033[0;31m#{text}\033[0m"
     end
 
-    def sudo_cmd
-      if fetch(:use_sudo, true)
-        sudo(:as => chef_runner)
-      else
-        logger.info "NOTICE: chef_runner configuration invalid when use_sudo is false, ignoring..." unless chef_runner.nil?
-        ''
-      end
+    def prepare_sudo_cmd(cmd)
+      user == 'root' ? cmd : "sudo -- sh -c '#{cmd}'"
     end
+    
   end
 end

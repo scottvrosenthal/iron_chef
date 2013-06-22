@@ -33,39 +33,40 @@ Capistrano::Configuration.instance.load do
         fi
         BASH
         put script, "/tmp/chef-install.sh", :via => :scp
-        run "#{try_sudo} bash /tmp/chef-install.sh > /tmp/chef-install.log"
+        run prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
       end
 
-      desc "installs chef via yum on a centos/red hat host"
-      task :redhat do
-        run "mkdir -p #{chef_destination}"
-        script = <<-BASH
-        if type -p chef-solo > /dev/null; then
-          echo "Using chef-solo at `which chef-solo`"
-        else
-          yum update -y
-          rpm -Uvh http://rbel.frameos.org/rbel6
-          yum-config-manager --enable rhel-6-server-optional-rpms
-          yum install -y ruby ruby-devel ruby-ri ruby-rdoc ruby-shadow gcc gcc-c++ automake autoconf make curl dmidecode
-          cd /tmp
-          curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
-          tar zxf rubygems-1.8.10.tgz
-          cd rubygems-1.8.10
-          ruby setup.rb --no-format-executable
-          gem install chef --no-ri --no-rdoc --version "#{chef_version}"
-        fi
-        BASH
-        put script, "/tmp/chef-install.sh", :via => :scp
-        run "#{try_sudo} bash /tmp/chef-install.sh > /tmp/chef-install.log"
+      %w(redhat centos).each do |host_os|
+        desc "installs chef via yum on a #{host_os} hat host"
+        task host_os do
+          run "mkdir -p #{chef_destination}"
+          script = <<-BASH
+          if type -p chef-solo > /dev/null; then
+            echo "Using chef-solo at `which chef-solo`"
+          else
+            yum update -y
+            rpm -Uvh http://rbel.frameos.org/rbel6
+            yum-config-manager --enable rhel-6-server-optional-rpms
+            yum install -y ruby ruby-devel ruby-ri ruby-rdoc ruby-shadow gcc gcc-c++ automake autoconf make curl dmidecode
+            cd /tmp
+            curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
+            tar zxf rubygems-1.8.10.tgz
+            cd rubygems-1.8.10
+            ruby setup.rb --no-format-executable
+            gem install chef --no-ri --no-rdoc --version "#{chef_version}"
+          fi
+          BASH
+          put script, "/tmp/chef-install.sh", :via => :scp
+          run prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
+        end        
       end
-
     end
 
     desc "pushes the current chef configuration to the server"
     task :update_code, :except => { :nochef => true } do
       iron_chef.rsync
-      generate_solo_rb
       generate_node_json
+      generate_solo_rb
     end
 
     desc "runs chef with --why-run flag to to understand the decisions it makes"
@@ -81,21 +82,26 @@ Capistrano::Configuration.instance.load do
     end
 
     desc "applies the current chef config to the server"
-    task :cook, :except => { :nochef => true } do
+    task :apply, :except => { :nochef => true } do
       iron_chef.lock
       transaction do
         on_rollback { iron_chef.unlock }
         iron_chef.prepare
         update_code
-        iron_chef.cook
+        iron_chef.apply
         iron_chef.unlock
       end
     end
 
     desc "clears the chef lockfile on the server."
-    task :unlock, :except => { :nochef => true} do
+    task :unlock, :except => { :nochef => true } do
       iron_chef.unlock
     end
+    
+    desc "clears the chef destination folder on the server."
+    task :clear, :except => { :nochef => true } do
+      run prepare_sudo_cmd("rm -rf #{chef_destination}/*"
+    end    
     
     def generate_node_json(run_list = [])
       attrs = fetch(:chef_attributes, {})
@@ -123,12 +129,13 @@ Capistrano::Configuration.instance.load do
     def generate_solo_rb
       cookbook_paths = cookbooks.map { |c| "File.join(chef_root, #{c.to_s.inspect})" }.join(', ')
       solo_rb = <<-RUBY
+      solo true
       chef_root = File.expand_path(File.dirname(__FILE__))
       file_cache_path chef_root
       cookbook_path   [ #{cookbook_paths} ]
       role_path       File.join(chef_root, "roles")
       data_bag_path   File.join(chef_root, "data_bags")
-
+      json_attribs    File.join(chef_root, "node.json")
       log_level "#{chef_log_level}".to_sym
       RUBY
       put solo_rb, "#{chef_destination}/solo.rb", :via => :scp
@@ -143,7 +150,11 @@ Capistrano::Configuration.instance.load do
         task(server) { role :server, server }
       end
     end
-
+    
+    def prepare_sudo_cmd(cmd)
+      user == 'root' ? cmd : "sudo -- sh -c '#{cmd}'"
+    end
+    
   end
 end
 
