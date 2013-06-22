@@ -49,7 +49,11 @@ fi
     end
 
     def unlock
-      run "#{try_sudo} rm -f #{chef_lock_file}; true" if should_lock?
+      run prepare_sudo_cmd("rm -f #{chef_lock_file}; true") if should_lock?
+    end
+
+    def prepare_sudo_cmd(cmd)
+      user == 'root' ? cmd : "sudo -- sh -c '#{cmd}'"
     end
 
     private
@@ -83,10 +87,6 @@ fi
 
     def red_text(text)
       "\033[0;31m#{text}\033[0m"
-    end
-
-    def prepare_sudo_cmd(cmd)
-      user == 'root' ? cmd : "sudo -- sh -c '#{cmd}'"
     end
     
   end
