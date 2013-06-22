@@ -1,6 +1,31 @@
 module IronChef
   module Plugin
 
+    def find_node(node_path)
+      raise "Node YAML file #{node_path} not found" unless node_path && File.exists?(node_path)
+
+      node_name   = File.basename(node_path).gsub('.yml','')
+      node_config = IronChef::ERB.read_erb_yaml(node_path)
+
+      puts "node name -> #{node_name}"
+      puts "node config -> #{node_config}"
+
+      node_config['node_name'] = node_name
+
+      node_config
+    end
+
+    def node(node_name)
+      unless node_path = Dir.glob("./nodes/**/#{node_name}.yml")[0]
+        abort "Node '#{node_name}' is unknown. Known nodes are #{nodes_list.join(', ')}."
+      end
+      find_node(node_path)
+    end
+
+    def nodes_list
+      Dir.glob("./nodes/**/*.yml").map { |f| File.basename(f, '.*') }
+    end
+
     def rsync
       IronChef::Util.thread_pool_size = chef_parallel_rsync_pool_size
       servers = IronChef::Util.optionally_async(find_servers_for_task(current_task), chef_parallel_rsync)

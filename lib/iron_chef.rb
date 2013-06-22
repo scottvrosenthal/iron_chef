@@ -2,6 +2,7 @@ $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 
 require 'iron_chef/rsync'
 require 'iron_chef/async_enumerable'
+require 'iron_chef/erb'
 require 'iron_chef/plugin'
 require 'iron_chef/thread_pool'
 require 'iron_chef/util'
