@@ -54,37 +54,35 @@ files = {
   FILE
   
   "config/deploy.rb" => unindent(<<-FILE),
+    set :stages, %w(staging)
+    set :default_stage, 'staging'
+
     require 'capistrano/ext/multistage'
-    
-    
+
     set :default_chef_attributes, false
+
     # don't forget to run locally -> ssh-add xxxxx_keypair_ec2.pem
     ssh_options[:keys] = File.expand_path('your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
     default_run_options[:pty] = true
+
     set :user, 'xxxx-username-in-ec2-xxxx'
     set :use_sudo, false
-    
-    
+
   FILE
   
   "config/deploy/staging.rb" => unindent(<<-FILE),
-  # anything that's 
+
+  tasks_for_server_group :staging, %w(
+  ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
+  ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
+  )
   
   FILE
-  
-  "config/deploy/production.rb" => unindent(<<-FILE),
-  #role :web, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com"
-  #role :app, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com"
-  #role :db, "ec2-XXX-XXX-XXX-XXX.compute-1.amazonaws.com" , :primary => true
-  #role :db, "your slave db-server here"
-  
-  FILE
-  
-  "data_bags/.gitkeep" => '',
-  "nodes/.gitkeep" => '',
-  "roles/.gitkeep" => '',
-  "cookbooks/.gitkeep" => '',
-  "site-cookbooks/.gitkeep" => '',
+
+  "data_bags/staging/default.json" => '',
+  "nodes/staging/app.json" => '',
+  "roles/staging/app.rb" => '',
+  "cookbooks/main/recipes/default.rb" => '',
   "README.md" => "<%= base %>"
 }
 

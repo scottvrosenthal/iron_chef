@@ -5,7 +5,7 @@ Capistrano::Configuration.instance.load do
     set :chef_version, '=11.4.0'
     set :chef_source, '.'
     set :chef_destination, "/tmp/chef"
-    set :chef_cookbooks,   %w(site-cookbooks cookbooks)
+    set :chef_cookbooks,   %w(cookbooks)
     set :chef_log_level, 'info'    
     set :chef_command, 'chef-solo -c solo.rb'
     set :chef_parameters, '--color'
@@ -102,7 +102,9 @@ Capistrano::Configuration.instance.load do
     task :clear, :except => { :nochef => true } do
       run iron_chef.prepare_sudo_cmd("rm -rf #{chef_destination}/*")
     end    
-    
+
+    #TODO
+    #http://stackoverflow.com/questions/15619945/capistrano-how-to-access-a-serverdefinition-option-in-the-code/15633170#15633170
     def generate_node_json(run_list = [])
       attrs = fetch(:chef_attributes, {})
       if fetch(:default_chef_attributes, true)
