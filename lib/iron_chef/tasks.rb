@@ -33,7 +33,7 @@ Capistrano::Configuration.instance.load do
         fi
         BASH
         put script, "/tmp/chef-install.sh", :via => :scp
-        run prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
+        run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
       end
 
       %w(redhat centos).each do |host_os|
@@ -57,7 +57,7 @@ Capistrano::Configuration.instance.load do
           fi
           BASH
           put script, "/tmp/chef-install.sh", :via => :scp
-          run prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
+          run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
         end        
       end
     end
@@ -100,7 +100,7 @@ Capistrano::Configuration.instance.load do
     
     desc "clears the chef destination folder on the server."
     task :clear, :except => { :nochef => true } do
-      run prepare_sudo_cmd("rm -rf #{chef_destination}/*"
+      run iron_chef.prepare_sudo_cmd("rm -rf #{chef_destination}/*")
     end    
     
     def generate_node_json(run_list = [])
@@ -150,11 +150,6 @@ Capistrano::Configuration.instance.load do
         task(server) { role :server, server }
       end
     end
-    
-    def prepare_sudo_cmd(cmd)
-      user == 'root' ? cmd : "sudo -- sh -c '#{cmd}'"
-    end
-    
   end
 end
 
