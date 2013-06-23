@@ -156,15 +156,18 @@ Capistrano::Configuration.instance.load do
     task :ubuntu do
       run "mkdir -p #{chef_destination}"
       script = <<-BASH
-      if type -p chef-solo > /dev/null; then
-        echo "Using chef-solo at `which chef-solo`"
-      else
-        aptitude update
-        apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl rubygems
-        gem install chef --no-ri --no-rdoc --version "#{chef_version}"
-      fi
-      BASH
+#!/bin/sh
+
+if type -p chef-solo > /dev/null; then
+  echo "Using chef-solo at `which chef-solo`"
+else
+  aptitude update
+  apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl rubygems
+  gem install chef --no-ri --no-rdoc --version "#{chef_version}"
+fi
+BASH
       put script, "/tmp/chef-install.sh", :via => :scp
+      run iron_chef.prepare_sudo_cmd("chmod +x /tmp/chef-install.sh")
       run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
     end
 
@@ -173,25 +176,27 @@ Capistrano::Configuration.instance.load do
       task host_os do
         run "mkdir -p #{chef_destination}"
         script = <<-BASH
-        if type -p chef-solo > /dev/null; then
-          echo "Using chef-solo at `which chef-solo`"
-        else
-          yum update -y
-          rpm -Uvh http://rbel.frameos.org/rbel6
-          yum-config-manager --enable rhel-6-server-optional-rpms
-          yum install -y ruby ruby-devel ruby-ri ruby-rdoc ruby-shadow gcc gcc-c++ automake autoconf make curl dmidecode
-          cd /tmp
-          curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
-          tar zxf rubygems-1.8.10.tgz
-          cd rubygems-1.8.10
-          ruby setup.rb --no-format-executable
-          gem install chef --no-ri --no-rdoc --version "#{chef_version}"
-        fi
-        BASH
-        put script, "/tmp/chef-install.sh", :via => :scp
-          run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
-        end
-      end
+#!/bin/sh
 
-    end ## end bootstrap namespace ##
+if type -p chef-solo > /dev/null; then
+  echo "Using chef-solo at `which chef-solo`"
+else
+  yum update -y
+  rpm -Uvh http://rbel.frameos.org/rbel6
+  yum-config-manager --enable rhel-6-server-optional-rpms
+  yum install -y ruby ruby-devel ruby-ri ruby-rdoc ruby-shadow gcc gcc-c++ automake autoconf make curl dmidecode
+  cd /tmp
+  curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
+  tar zxf rubygems-1.8.10.tgz
+  cd rubygems-1.8.10
+  ruby setup.rb --no-format-executable
+  gem install chef --no-ri --no-rdoc --version "#{chef_version}"
+fi
+BASH
+        put script, "/tmp/chef-install.sh", :via => :scp
+        run iron_chef.prepare_sudo_cmd("chmod +x /tmp/chef-install.sh")
+        run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
+      end
+    end
+  end ## end bootstrap namespace ##
 end

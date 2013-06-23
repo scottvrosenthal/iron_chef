@@ -8,7 +8,6 @@ module IronChef
       node_config = IronChef::ERB.read_erb_yaml(node_path)
 
       node_config['node_name'] = node_name
-      node_config['json']['environment'] = chef_environment
 
       node_config
     end
