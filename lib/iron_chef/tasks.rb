@@ -18,6 +18,7 @@ Capistrano::Configuration.instance.load do
   set :chef_write_to_file, nil
   set :chef_runner, nil
   set :chef_lock_file, '/tmp/chef.lock'
+  set :chef_nodes_dir, 'nodes'
   set :chef_environment_dir, 'environments'
 
   namespace :chef do
@@ -128,11 +129,19 @@ Capistrano::Configuration.instance.load do
             f.puts "# #{name.upcase}-specific chef environment configuration"
             f.puts "# please put general chef environment config in config/deploy.rb"
           end
+          puts "Created chef environment config files for: #{name}"
         end
         yml_env_file = File.join(location, name + ".yml")
         unless File.exists?(yml_env_file)
           File.open(yml_env_file, "w") do |f|
-            f.puts "# #{name.upcase}-specific chef environment node list"
+            f.puts "# #{name.upcase}-specific chef environment node list\nnodes:\n  - #{name}-server1"
+          end
+        end
+        nodes_location  = fetch(:chef_nodes_dir, 'nodes')
+        yml_env_node_file = File.join(nodes_location, "#{name}-server1.yml")
+        unless File.exists?(yml_env_node_file)
+          File.open(yml_env_node_file, "w") do |f|
+            f.puts "json:\n  environment: #{name}\n\nroles:\n\nrecipes:\n\nserver:\n  public_dns: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
           end
         end
       end
