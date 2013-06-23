@@ -7,10 +7,8 @@ module IronChef
       node_name   = File.basename(node_path).gsub('.yml','')
       node_config = IronChef::ERB.read_erb_yaml(node_path)
 
-      puts "node name -> #{node_name}"
-      puts "node config -> #{node_config}"
-
       node_config['node_name'] = node_name
+      node_config['json']['environment'] = chef_environment
 
       node_config
     end
@@ -23,7 +21,88 @@ module IronChef
     end
 
     def nodes_list
-      Dir.glob("./nodes/**/*.yml").map { |f| File.basename(f, '.*') }
+      nodes_available = Dir.glob("./nodes/**/*.yml").map { |f| File.basename(f, '.*') }
+      nodes_available.sort
+    end
+
+    def env_nodes_list
+      location = fetch(:chef_environment_dir, "environments")
+      env_nodes_path = Dir.glob("./#{location}/#{chef_environment}.yml")[0]
+
+      raise "Env Node YAML file #{env_nodes_path} not found" unless env_nodes_path && File.exists?(env_nodes_path)
+
+      env_nodes_available = IronChef::ERB.read_erb_yaml(env_nodes_path)
+      nodes_available = env_nodes_available['nodes']
+      nodes_available.sort
+    end
+
+    def tasks_for_env(nodes_names)
+
+      servers = []
+
+      nodes_names.each do |node_name|
+        node_config = node(node_name)
+        if node_config['server']
+          if node_config['server']['public_dns']
+
+            servers << [node_config['server']['public_dns'], node_config['node_name']]
+
+            task(node_config['node_name']) do
+              role :server, node_config['server']['public_dns'], { node_name: node_config['node_name'] }
+            end
+
+          end
+        end
+      end
+
+      if nodes_names
+        task(:all_nodes) do
+          servers.each do |server|
+            host_name, node_name = server
+            role :server, host_name, { node_name: node_name }
+          end
+        end
+      end
+
+    end
+
+    def upload_node_json(node_name)
+
+      node_config = node(node_name)
+
+      node_dna = {
+        :run_list => node_run_list(node_config)
+      }.merge(node_config['json'])
+
+      put node_dna.to_json, "#{chef_destination}/node.json", :via => :scp
+
+    end
+
+    def node_run_list(node_config)
+      run_list = []
+      run_list += node_config['roles'].map   { |r| "role[#{r}]"   } if node_config['roles']
+      run_list += node_config['recipes'].map { |r| "recipe[#{r}]" } if node_config['recipes']
+
+      run_list
+    end
+
+    def cookbooks
+      Array(fetch(:chef_cookbooks) { (:chef_cookbooks).select { |path| File.exist?(path) } })
+    end
+
+    def upload_solo_rb
+      cookbook_paths = cookbooks.map { |c| "File.join(chef_root, #{c.to_s.inspect})" }.join(', ')
+      solo_rb = <<-RUBY
+      solo true
+      chef_root = File.expand_path(File.dirname(__FILE__))
+      file_cache_path chef_root
+      cookbook_path   [ #{cookbook_paths} ]
+      role_path       File.join(chef_root, "roles")
+      data_bag_path   File.join(chef_root, "data_bags")
+      json_attribs    File.join(chef_root, "node.json")
+      log_level "#{chef_log_level}".to_sym
+      RUBY
+      put solo_rb, "#{chef_destination}/solo.rb", :via => :scp
     end
 
     def rsync
@@ -32,6 +111,7 @@ module IronChef
       overrides = {}
       overrides[:user] = fetch(:user, ENV['USER'])
       overrides[:port] = fetch(:port) if exists?(:port)
+
       failed_servers = servers.map do |server|
         rsync_cmd = IronChef::Rsync.command(
           chef_source,
@@ -41,11 +121,31 @@ module IronChef
           :ssh => ssh_options.merge(server.options[:ssh_options]||{}).merge(overrides)
         )
         logger.debug rsync_cmd
-        server.host unless system rsync_cmd
+
+        rsync_success = system rsync_cmd
+
+        if rsync_success
+          upload_chef_solo_config(server)
+        end
+
+        server.host unless rsync_success
       end.compact
 
       raise "rsync failed on #{failed_servers.join(',')}" if failed_servers.any?
     end
+
+    def upload_chef_solo_config(server)
+
+      # allows use to use node aliases for Iron Chef
+      node_name = server.options[:node_name]
+
+      raise "upload_chef_solo_config failed on #{server.host} with missing node name on role" unless node_name
+      upload_node_json(node_name)
+
+      upload_solo_rb
+
+    end
+
 
     def prepare
       run "mkdir -p #{chef_destination}"
@@ -88,8 +188,8 @@ fi
     end
 
     def chef(command = :why_run)
-      prepare_chef_cmd = prepare_sudo_cmd("#{chef_command} #{chef_parameters}")
-      chef_cmd = "cd #{chef_destination} && #{prepare_chef_cmd}"
+      prepare_chef_cmd = "#{chef_command} #{chef_parameters}"
+      chef_cmd = "cd #{chef_destination} && #{chef_command} #{chef_parameters}"
       flag = command == :why_run ? '--why-run' : ''
 
       writer = if chef_stream_output
@@ -100,8 +200,9 @@ fi
 
       writer = IronChef::Writer::File.new(writer, chef_write_to_file) unless chef_write_to_file.nil?
 
+      prepared_chef_cmd = prepare_sudo_cmd("#{chef_cmd} #{flag}")
       begin
-        run "#{chef_cmd} #{flag}" do |channel, stream, data|
+        run prepared_chef_cmd do |channel, stream, data|
           writer.collect_output(channel[:host], data)
         end
         logger.debug "Chef #{command} complete."
