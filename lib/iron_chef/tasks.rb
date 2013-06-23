@@ -59,6 +59,7 @@ Capistrano::Configuration.instance.load do
     desc "Clears the chef destination folder on the server."
     task :clear, :except => { :nochef => true } do
       run iron_chef.prepare_sudo_cmd("rm -rf #{chef_destination}/*")
+      iron_chef.unlock
     end
 
     desc "Shows nodes available for chef config."
