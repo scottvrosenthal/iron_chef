@@ -162,7 +162,7 @@ Capistrano::Configuration.instance.load do
 
   namespace :bootstrap do
 
-    desc "Installs chef via apt on an ubuntu host."
+    desc "Installs chef via apt on a ubuntu host."
     task :ubuntu do
       run "mkdir -p #{chef_destination}"
       script = <<-BASH
@@ -181,7 +181,7 @@ BASH
       run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
     end
 
-    %w(redhat centos).each do |host_os|
+    %w(redhat centos amazon).each do |host_os|
       desc "Installs chef via yum on a #{host_os} host."
       task host_os do
         run "mkdir -p #{chef_destination}"
