@@ -34,6 +34,8 @@ end
 
 base = ARGV.shift
 
+FileUtils.mkdir_p(base)
+
 files = {
   ".gitignore" => unindent(<<-FILE),
     /tmp
@@ -54,12 +56,9 @@ files = {
   FILE
   
   "config/deploy.rb" => unindent(<<-FILE),
-    set :stages, %w(staging)
-    set :default_stage, 'staging'
+    set :chef_environments, %w(staging production)
+    # set :default_chef_environment, 'staging'
 
-    require 'capistrano/ext/multistage'
-
-    set :default_chef_attributes, false
 
     # don't forget to run locally -> ssh-add xxxxx_keypair_ec2.pem
     ssh_options[:keys] = File.expand_path('your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
@@ -69,24 +68,14 @@ files = {
     set :use_sudo, false
 
   FILE
-  
-  "config/deploy/staging.rb" => unindent(<<-FILE),
 
-  tasks_for_server_group :staging, %w(
-  ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
-  ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
-  )
-  
-  FILE
+  "environments/.gitkeep" => '',
+  "roles/.gitkeep" => '',
+  "nodes/.gitkeep" => '',
+  "cookbooks/.gitkeep" => '',
 
-  "data_bags/staging/default.json" => '',
-  "nodes/staging/app.json" => '',
-  "roles/staging/app.rb" => '',
-  "cookbooks/main/recipes/default.rb" => '',
-  "README.md" => "<%= base %>"
+  "README.md" => base
 }
-
-FileUtils.mkdir_p(base)
 
 files.each do |file, content|
   file = File.join(base, file)
@@ -97,7 +86,7 @@ files.each do |file, content|
   else
     unless File.exists?(File.dirname(file))
       puts "[add] making directory '#{File.dirname(file)}'"
-      FileUtils.mkdir(File.dirname(file))
+      FileUtils.mkdir_p(File.dirname(file))
     end
     puts "[add] writing '#{file}'"
     File.open(file, "w") { |f| f.write(content) }
@@ -107,6 +96,9 @@ end
 Dir.chdir(base) do
   puts   'Installing gem dependencies'
   system 'bundle'
-  
+
+  system 'cap env:prepare'
+
   puts "Created Iron Chef devops project '#{base}'"
+
 end

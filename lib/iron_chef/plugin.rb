@@ -42,12 +42,12 @@ module IronChef
       nodes_names.each do |node_name|
         node_config = node(node_name)
         if node_config['server']
-          if node_config['server']['public_dns']
+          if node_config['server']['host']
 
-            servers << [node_config['server']['public_dns'], node_config['node_name']]
+            servers << [node_config['server']['host'], node_config['node_name']]
 
             task(node_config['node_name']) do
-              role :server, node_config['server']['public_dns'], { node_name: node_config['node_name'] }
+              role :server, node_config['server']['host'], { node_name: node_config['node_name'] }
             end
 
           end
