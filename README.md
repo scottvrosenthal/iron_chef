@@ -20,7 +20,7 @@ gem install 'iron_chef'
 ironchef project-name-devops
 ```
 
-Above command creates the following DevOps project to get you started.
+Above command creates the following DevOps project under the folder 'project-name-devops' to get you started.
 
 ```ascii
 .
