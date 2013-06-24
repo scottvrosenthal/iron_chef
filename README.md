@@ -20,7 +20,7 @@ gem install 'iron_chef'
 ironchef project-name-devops
 ```
 
-Above command creates the following DevOps project under the folder 'project-name-devops' to get you started.
+The `ironchef` command creates the following DevOps project under the folder `project-name-devops` to get you started.
 
 ```ascii
 .
@@ -93,7 +93,7 @@ cap staging all_nodes chef:apply
 
 # Nodes
 
-Under the nodes folder name each node.yml file something that makes it easy to run bash macro commands.
+Under the nodes folder name each `node.yml` file something that makes it easy to run bash macro commands.
 
 For example:
 
@@ -108,9 +108,9 @@ This allows you to not have to type in the cloud provider's generated machine na
 cap staging-web{1,2} chef:why_run
 ```
 
-Here's an example of what a node.yml should contain:
+Here's an example of what a `node.yml` should contain:
 
-*(below is the minimum acceptable values the gem expects for a node.yml file)*
+*(below is the minimum acceptable values the gem expects for a `node.yml` file)*
 
 ```yml
 json:
@@ -124,7 +124,7 @@ server:
   host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
 ```
 
-To map nodes to a target environment, just update the corresponding environments/staging.yml file.
+To map nodes to a target environment, just update the corresponding `environments/staging.yml` file.
 
 Another example with roles and recipes:
 
@@ -151,9 +151,9 @@ server:
 
 Iron Chef environments are based on the capistrano multistage idea with a twist.
 
-The environments folder allows you to group nodes into environments using the env_name.yml file.
+The environments folder allows you to group nodes into environments using the `env_name.yml` file.
 
-Example staging.yml file:
+Example `staging.yml` file:
 
 ```yml
 nodes:
@@ -163,13 +163,13 @@ nodes:
   - staging-web3
 ```
 
-This allows the target environment to only run tasks for nodes listed in staging.yml file:
+This allows the target environment to only run tasks for nodes listed in `staging.yml` file:
 
 ```sh
 cap staging staging-web{1,2,3} chef:clear
 ```
 
-Also by targeting an environment only nodes defined in the env_name.yml will be available as tasks:
+Also by targeting an environment only nodes defined in the `env_name.yml` will be available as tasks:
 
 ```sh
 cap staging all_nodes chef:apply
