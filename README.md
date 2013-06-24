@@ -55,9 +55,10 @@ cap -T
 ### Example output
 
 ```sh
+cap bootstrap:amazon # Installs chef via yum on a amazon host.
 cap bootstrap:centos # Installs chef via yum on a centos host.
 cap bootstrap:redhat # Installs chef via yum on a redhat host.
-cap bootstrap:ubuntu # Installs chef via apt on an ubuntu host.
+cap bootstrap:ubuntu # Installs chef via apt on a ubuntu host.
 cap chef:apply       # Applies the current chef config to the server.
 cap chef:clear       # Clears the chef destination folder on the server.
 cap chef:nodes       # Shows all nodes available for chef config.
@@ -91,6 +92,12 @@ Apply chef configs to multiple nodes in a target environment:
 
 ```sh
 cap staging all_nodes chef:apply
+```
+
+Clear a bad chef config from the server:
+
+```sh
+cap staging staging-web1 chef:clear
 ```
 
 # Nodes
