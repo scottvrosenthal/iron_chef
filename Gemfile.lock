@@ -16,10 +16,6 @@ GEM
       net-ssh-gateway (>= 1.1.0)
     highline (1.6.19)
     json (1.8.0)
-    metaclass (0.0.1)
-    minitest (5.0.5)
-    mocha (0.14.0)
-      metaclass (~> 0.0.1)
     net-scp (1.1.1)
       net-ssh (>= 2.6.5)
     net-sftp (2.1.2)
@@ -34,6 +30,4 @@ PLATFORMS
 
 DEPENDENCIES
   iron_chef!
-  minitest
-  mocha
   rake
