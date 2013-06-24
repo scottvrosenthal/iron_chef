@@ -50,7 +50,7 @@ cap staging          # Set the target chef environment to 'staging'.
 
 ## Example commands
 
-Using bash shortcuts to bootstrap multiple boxes at once:
+Use bash shortcuts to bootstrap multiple boxes at once:
 
 ```sh
 cap staging-{web,db}1 bootstrap:centos
@@ -62,7 +62,7 @@ Test chef config on multiple nodes:
 cap staging-{web,db}1 chef:why_run
 ```
 
-Apply chef configs to multiple nodes in an environment:
+Apply chef configs to multiple nodes in a target environment:
 
 ```sh
 cap staging all_nodes chef:apply
@@ -79,7 +79,7 @@ staging-web1.yml
 staging-web2.yml
 ```
 
-This allows you to not have to type in the cloud provider's generated machine name in the terminal.
+This allows you to not have to type in the cloud provider's generated machine name in the terminal:
 
 ```sh
 cap staging-web{1,2} chef:why_run
@@ -119,31 +119,33 @@ nodes:
   - staging-web3
 ```
 
-This allows the target environment to only run tasks for nodes listed in staging.yml:
+This allows the target environment to only run tasks for nodes listed in staging.yml file:
 
 ```sh
 cap staging staging-web{1,2,3} chef:clear
 ```
 
-Also by targeting an environment only nodes defined in the env_name.yml will be available as tasks.
+Also by targeting an environment only nodes defined in the env_name.yml will be available as tasks:
 
 ```sh
 cap staging all_nodes chef:apply
 ```
 
-List nodes that can be tasked in the staging environment:
+List all nodes that can be tasked in the staging environment:
 
 ```sh
 cap staging env:nodes
 ```
 
-If no environment is targeted then you have direct access to all node tasks through the default 'nodes' task.
+If no environment is targeted then you have direct access to all node tasks.
+
+Using the default 'nodes' task:
 
 ```sh
 cap nodes env:nodes
 ```
 
-Same as:
+Is the same as:
 
 ```sh
 cap env:nodes
