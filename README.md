@@ -18,6 +18,12 @@ gem install 'iron_chef'
 ironchef project-name-devops
 ```
 
+In config/deploy.rb uncomment the following line and set to the preferred default environment:
+
+```ruby
+set :default_chef_environment, 'staging'
+```
+
 ## Show commands
 
 ```sh
@@ -25,7 +31,7 @@ cd project-name-devops
 cap -T
 ```
 
-### example output
+### Example output
 
 ```sh
 cap bootstrap:centos # Installs chef via yum on a centos host.
