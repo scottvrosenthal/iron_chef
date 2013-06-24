@@ -3,6 +3,8 @@
   - A scrappy DevOps gem
   - Simple [Chef Solo](http://docs.opscode.com/chef_solo.html) wrapper
   - Built as a [capistrano](https://github.com/capistrano/capistrano) plugin
+  - Update multiple nodes in parallel
+  - Easily bootstrap nodes for Chef configuration
 
 ## Install
 
