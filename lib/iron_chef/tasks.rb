@@ -63,7 +63,7 @@ Capistrano::Configuration.instance.load do
       iron_chef.unlock
     end
 
-    desc "Shows nodes available for chef config."
+    desc "Shows all nodes available for chef config."
     task :nodes, :except => { :nochef => true } do
       puts iron_chef.nodes_list
     end
@@ -75,6 +75,15 @@ Capistrano::Configuration.instance.load do
   unless exists?(:chef_environments)
     location = fetch(:chef_environment_dir, 'environments')
     set :chef_environments, Dir["#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
+  end
+
+  desc "Target individual nodes."
+  task(:nodes) do
+
+      nodes_available = iron_chef.nodes_list
+
+      iron_chef.tasks_for_env(nodes_available)
+
   end
 
   chef_environments.each do |name|
@@ -101,22 +110,11 @@ Capistrano::Configuration.instance.load do
       find_and_execute_task(ARGV.first) if ARGV.any?{ |option| option =~ /-T|--tasks|-e|--explain/ }
     else
       # Execute the default chef environment so that recipes required in environment can contribute tasks
-      find_and_execute_task(default_chef_environment) if exists?(:default_chef_environment)
+      find_and_execute_task('nodes')
     end
   end
 
   namespace :env do
-    desc "[internal] Ensure that a chef environment has been selected."
-    task :ensure do
-      if !exists?(:chef_environment)
-        if exists?(:default_chef_environment)
-          logger.important "Defaulting to '#{default_chef_environment}'"
-          find_and_execute_task(default_chef_environment)
-        else
-          abort "No chef environment specified. Please specify one of: #{chef_environments.join(', ')} (e.g. 'cap #{chef_environments.first} #{ARGV.last}')"
-        end
-      end
-    end
 
     desc "Stub out the chef environment config files."
     task :prepare do
@@ -149,12 +147,14 @@ Capistrano::Configuration.instance.load do
 
     desc "Shows chef environment nodes available for chef apply config."
     task :nodes, :except => { :nochef => true } do
-      puts iron_chef.env_nodes_list
+      if chef_environments.include?(ARGV.first)
+        puts iron_chef.env_nodes_list
+      else
+        puts iron_chef.nodes_list
+      end
     end
 
   end
-
-  on :start, "env:ensure", :except => chef_environments + ['env:prepare']
 
   ## end env tasks
 

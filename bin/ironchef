@@ -36,6 +36,9 @@ base = ARGV.shift
 
 FileUtils.mkdir_p(base)
 
+FileUtils.mkdir_p("#{base}/environments")
+FileUtils.mkdir_p("#{base}/nodes")
+
 files = {
   ".gitignore" => unindent(<<-FILE),
     /tmp
@@ -57,23 +60,20 @@ files = {
   
   "config/deploy.rb" => unindent(<<-FILE),
     set :chef_environments, %w(staging production)
-    # set :default_chef_environment, 'staging'
 
     # don't forget to run locally
-    # chmod 600 /your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem
-    # ssh-add xxxxx_keypair_ec2.pem
+    # chmod 600 /your-full/local-path-to-ssh-key/xxxxx_keypair_ec2.pem
+    # ssh-add /your-full/local-path-to-ssh-key/xxxxx_keypair_ec2.pem
 
-    ssh_options[:keys] = File.expand_path('your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
+    ssh_options[:keys] = File.expand_path('~/your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
     default_run_options[:pty] = true
 
-    set :user, 'xxxx-username-in-ec2-xxxx'
+    set :user, 'ec2-user'
     set :use_sudo, false
 
   FILE
 
-  "environments/.gitkeep" => '',
   "roles/.gitkeep" => '',
-  "nodes/.gitkeep" => '',
   "cookbooks/.gitkeep" => '',
   "data_bags/global.json" => "{\n\"id\": \"global\"\n}",
 
