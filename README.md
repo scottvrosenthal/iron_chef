@@ -10,14 +10,12 @@ From the terminal install the gem
 
 ```sh
 gem install 'iron_chef'
-
 ```
 
 ## Bootstrap a new DevOps project
 
 ```sh
 ironchef project-name-devops
-
 ```
 
 ## Show commands
@@ -45,7 +43,6 @@ cap invoke           # Invoke a single command on the remote servers.
 cap production       # Set the target chef environment to 'production'.
 cap shell            # Begin an interactive Capistrano session.
 cap staging          # Set the target chef environment to 'staging'.
-
 ```
 
 ## Changelog
