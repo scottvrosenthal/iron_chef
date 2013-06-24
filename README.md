@@ -8,7 +8,7 @@
 
 ## Install
 
-From the terminal install the gem
+From the terminal install the gem:
 
 ```sh
 gem install 'iron_chef'
