@@ -4,7 +4,7 @@ require 'optparse'
 require 'fileutils'
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: #{File.basename($0)} [devops_project_name]"
+  opts.banner = "Usage: #{File.basename($0)} [project-name-devops]"
 
   opts.on("-h", "--help", "Displays this help info") do
     puts opts
@@ -22,9 +22,9 @@ end
 
 
 if ARGV.empty?
-  abort "Please specify the devops project directory , e.g. '#{File.basename($0)}-devops'"
+  abort "Please specify the DevOps project directory , e.g. '#{File.basename($0)}-devops'"
 elsif ARGV.length > 1
-  abort "Too many arguments; please specify only the devops project directory."
+  abort "Too many arguments; please specify only the DevOps project directory."
 end
 
 def unindent(string)
@@ -59,8 +59,10 @@ files = {
     set :chef_environments, %w(staging production)
     # set :default_chef_environment, 'staging'
 
+    # don't forget to run locally
+    # chmod 600 /your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem
+    # ssh-add xxxxx_keypair_ec2.pem
 
-    # don't forget to run locally -> ssh-add xxxxx_keypair_ec2.pem
     ssh_options[:keys] = File.expand_path('your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
     default_run_options[:pty] = true
 
@@ -75,7 +77,7 @@ files = {
   "cookbooks/.gitkeep" => '',
   "data_bags/global.json" => "{\n\"id\": \"global\"\n}",
 
-  "README.md" => base
+  "README.md" => "\# #{base}"
 }
 
 files.each do |file, content|
@@ -100,6 +102,6 @@ Dir.chdir(base) do
 
   system 'cap env:prepare'
 
-  puts "Created Iron Chef devops project '#{base}'"
+  puts "Created Iron Chef DevOps project '#{base}'"
 
 end
