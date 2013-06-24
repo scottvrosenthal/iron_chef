@@ -25,6 +25,4 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'capistrano', '>= 2.15.4'
   gem.add_dependency 'json'
 
-  gem.add_development_dependency 'minitest'
-  gem.add_development_dependency 'mocha'
 end
