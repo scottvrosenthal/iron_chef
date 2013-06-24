@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Iron Chef makes cloud server provisioning with Chef Solo powerful and easy.}
   gem.homepage      = "https://github.com/scottvrosenthal/iron_chef"
   gem.license       = "MIT"
-  gem.files         = `git ls-files | grep -vE '(jenkins|.gitmodules|.gitignore|.ruby-version|.ruby-gemset|README.md)'`.split("\n")
+  gem.files         = `git ls-files | grep -vE '(jenkins|.travis.yml|.gitmodules|.gitignore|.ruby-version|.ruby-gemset|README.md)'`.split("\n")
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
