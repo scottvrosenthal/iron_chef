@@ -20,6 +20,29 @@ gem install 'iron_chef'
 ironchef project-name-devops
 ```
 
+Above command creates the following DevOps project to get you started.
+
+```ascii
+.
+├── Capfile
+├── Gemfile
+├── README.md
+├── config
+│   └── deploy.rb
+├── cookbooks
+├── data_bags
+│   └── global.json
+├── environments
+│   ├── production.rb
+│   ├── production.yml
+│   ├── staging.rb
+│   └── staging.yml
+├── nodes
+│   ├── production-server1.yml
+│   └── staging-server1.yml
+└── roles
+```
+
 ## Show commands
 
 ```sh
