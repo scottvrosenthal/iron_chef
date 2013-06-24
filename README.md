@@ -103,6 +103,27 @@ server:
 
 To map nodes to a target environment, just update the corresponding environments/staging.yml file.
 
+Another example with roles and recipes:
+
+```yml
+json:
+  environment: staging
+  mysql:
+    server_root_password: n1ceRand0mP@sswordItIs
+
+roles:
+  - centos
+  - rails
+
+recipes:
+  - nginx
+  - mysql:server
+  - iptables
+
+server:
+  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
+```
+
 # Environments
 
 Iron Chef environments are based on the capistrano multistage idea with a twist.
