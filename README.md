@@ -87,7 +87,7 @@ cap staging-web{1,2} chef:why_run
 
 Here's an example of what a node.yml should contain:
 
-*(below is the minimum acceptable values the gem expects for a node yml)*
+*(below is the minimum acceptable values the gem expects for a node.yml file)*
 
 ```yml
 json:
@@ -109,10 +109,26 @@ Iron Chef environments are based on the capistrano multistage idea with a twist.
 
 The environments folder allows you to group nodes into environments using the env_name.yml file.
 
+Example staging.yml file:
+
+```yml
+nodes:
+  - staging-db1
+  - staging-web1
+  - staging-web2
+  - staging-web3
+```
+
 This allows the target environment to only run tasks for nodes listed in staging.yml:
 
 ```sh
 cap staging staging-web{1,2,3} chef:clear
+```
+
+Also by targeting an environment only nodes defined in the env_name.yml will be available as tasks.
+
+```sh
+cap staging all_nodes chef:apply
 ```
 
 List nodes that can be tasked in the staging environment:
@@ -121,7 +137,7 @@ List nodes that can be tasked in the staging environment:
 cap staging env:nodes
 ```
 
-If an environment isn't specified then you have direct access to all node tasks through the default 'nodes' task.
+If no environment is targeted then you have direct access to all node tasks through the default 'nodes' task.
 
 ```sh
 cap nodes env:nodes
