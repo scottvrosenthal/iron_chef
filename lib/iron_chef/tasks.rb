@@ -10,7 +10,7 @@ Capistrano::Configuration.instance.load do
   set :chef_log_level, 'info'
   set :chef_command, 'chef-solo -c solo.rb'
   set :chef_parameters, '--color'
-  set :chef_excludes, %w(.git .svn nodes)
+  set :chef_excludes, %w(*.md .git .svn nodes)
   set :chef_stream_output, false
   set :chef_parallel_rsync, true
   set :chef_parallel_rsync_pool_size, 10

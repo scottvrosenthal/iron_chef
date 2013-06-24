@@ -145,9 +145,9 @@ module IronChef
 
     end
 
-
     def prepare
       run "mkdir -p #{chef_destination}"
+      release_chef_client_lock
       run "chown -R $USER: #{chef_destination}"
     end
 
@@ -174,6 +174,10 @@ fi
 
     def unlock
       run prepare_sudo_cmd("rm -f #{chef_lock_file}; true") if should_lock?
+    end
+
+    def release_chef_client_lock
+      run prepare_sudo_cmd("rm -f #{chef_destination}/chef-client-running.pid; true")
     end
 
     def prepare_sudo_cmd(cmd)
