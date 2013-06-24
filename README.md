@@ -1,5 +1,7 @@
 # Iron Chef gem
 
+[![Build Status](https://www.travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://www.travis-ci.org/scottvrosenthal/iron_chef)
+
   - A scrappy DevOps gem
   - Simple [Chef Solo](http://docs.opscode.com/chef_solo.html) wrapper
   - Built as a [capistrano](https://github.com/capistrano/capistrano) plugin
