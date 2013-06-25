@@ -13,14 +13,16 @@ module IronChef
     end
 
     def node(node_name)
-      unless node_path = Dir.glob("./nodes/**/#{node_name}.yml")[0]
+      nodes_location  = fetch(:chef_nodes_dir, 'nodes')
+      unless node_path = Dir.glob("./#{nodes_location}/**/#{node_name}.yml")[0]
         abort "Node '#{node_name}' is unknown. Known nodes are #{nodes_list.join(', ')}."
       end
       find_node(node_path)
     end
 
     def nodes_list
-      nodes_available = Dir.glob("./nodes/**/*.yml").map { |f| File.basename(f, '.*') }
+      nodes_location  = fetch(:chef_nodes_dir, 'nodes')
+      nodes_available = Dir.glob("./#{nodes_location}/**/*.yml").map { |f| File.basename(f, '.*') }
       nodes_available.sort
     end
 
@@ -121,27 +123,25 @@ module IronChef
         )
         logger.debug rsync_cmd
 
-        rsync_success = system rsync_cmd
-
-        if rsync_success
-          upload_chef_solo_config(server)
-        end
-
-        server.host unless rsync_success
+        server.host unless system rsync_cmd
       end.compact
 
       raise "rsync failed on #{failed_servers.join(',')}" if failed_servers.any?
+
+      upload_chef_solo_config(servers)
     end
 
-    def upload_chef_solo_config(server)
+    def upload_chef_solo_config(servers)
 
-      # allows use to use node aliases for Iron Chef
-      node_name = server.options[:node_name]
+      servers.map do |server|
+        # allows use to use node aliases for Iron Chef
+        node_name = server.options[:node_name]
 
-      raise "upload_chef_solo_config failed on #{server.host} with missing node name on role" unless node_name
-      upload_node_json(node_name)
+        raise "upload_chef_solo_config failed on #{server.host} with missing node name on role" unless node_name
+        upload_node_json(node_name)
 
-      upload_solo_rb
+        upload_solo_rb
+      end
 
     end
 

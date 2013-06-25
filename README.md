@@ -6,7 +6,7 @@
   - Simple [Chef Solo](http://docs.opscode.com/chef_solo.html) wrapper
   - Built as a [capistrano](https://github.com/capistrano/capistrano) plugin
   - Update multiple nodes in parallel
-  - Easily bootstrap nodes for Chef configuration
+  - Easily bootstrap nodes via omnibus for Chef configuration
 
 ## Install
 
@@ -55,10 +55,7 @@ cap -T
 ### Example output
 
 ```sh
-cap bootstrap:amazon # Installs chef via yum on a amazon host.
-cap bootstrap:centos # Installs chef via yum on a centos host.
-cap bootstrap:redhat # Installs chef via yum on a redhat host.
-cap bootstrap:ubuntu # Installs chef via apt on a ubuntu host.
+cap bootstrap:chef   # Installs chef via omnibus on host.
 cap chef:apply       # Applies the current chef config to the server.
 cap chef:clear       # Clears the chef destination folder on the server.
 cap chef:nodes       # Shows all nodes available for chef config.
@@ -79,7 +76,7 @@ cap staging          # Set the target chef environment to 'staging'.
 Use bash shortcuts to bootstrap multiple boxes at once:
 
 ```sh
-cap staging-{web,db}1 bootstrap:centos
+cap staging-{web,db}1 bootstrap:chef
 ```
 
 Test chef config on multiple nodes:

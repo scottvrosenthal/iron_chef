@@ -3,12 +3,11 @@ require 'fileutils'
 
 Capistrano::Configuration.instance.load do
 
-  set :chef_version, '=11.4.0'
   set :chef_source, '.'
-  set :chef_destination, "/tmp/chef"
+  set :chef_destination, '/tmp/chef'
   set :chef_cookbooks,   %w(cookbooks)
   set :chef_log_level, 'info'
-  set :chef_command, 'chef-solo -c solo.rb'
+  set :chef_command, '/opt/chef/embedded/bin/ruby /opt/chef/bin/chef-solo -c solo.rb'
   set :chef_parameters, '--color'
   set :chef_excludes, %w(*.md .git .svn nodes)
   set :chef_stream_output, false
@@ -74,7 +73,7 @@ Capistrano::Configuration.instance.load do
 
   unless exists?(:chef_environments)
     location = fetch(:chef_environment_dir, 'environments')
-    set :chef_environments, Dir["#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
+    set :chef_environments, Dir["./#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
   end
 
   desc "Target individual nodes."
@@ -92,11 +91,10 @@ Capistrano::Configuration.instance.load do
       location = fetch(:chef_environment_dir, 'environments')
       set :chef_environment, name.to_sym
       if File.exist?(File.join(location, "#{chef_environment}.rb"))
-        load "#{location}/#{chef_environment}"
+        load "./#{location}/#{chef_environment}"
 
-        set(:chef_env_nodes) { YAML.load(File.read("#{location}/#{chef_environment}.yml"))["nodes"] }
 
-        env_nodes = fetch(:chef_env_nodes, nil)
+        env_nodes = YAML.load(File.read("./#{location}/#{chef_environment}.yml"))["nodes"]
 
         iron_chef.tasks_for_env(env_nodes)
 
@@ -121,13 +119,13 @@ Capistrano::Configuration.instance.load do
       location = fetch(:chef_environment_dir, 'environments')
       FileUtils.mkdir_p(location)
       chef_environments.each do |name|
-        rb_env_file = File.join(location, name + ".rb")
+        rb_env_file = File.join(location, "#{name}.rb")
         unless File.exists?(rb_env_file)
           File.open(rb_env_file, "w") do |f|
             f.puts "# #{name.upcase}-specific chef environment configuration"
             f.puts "# please put general chef environment config in config/deploy.rb"
           end
-          yml_env_file = File.join(location, name + ".yml")
+          yml_env_file = File.join(location, "#{name}.yml")
           unless File.exists?(yml_env_file)
             File.open(yml_env_file, "w") do |f|
               f.puts "# #{name.upcase}-specific chef environment node list\nnodes:\n  - #{name}-server1"
@@ -162,51 +160,23 @@ Capistrano::Configuration.instance.load do
 
   namespace :bootstrap do
 
-    desc "Installs chef via apt on a ubuntu host."
-    task :ubuntu do
+    desc "Installs chef via omnibus on host."
+    task :chef do
       run "mkdir -p #{chef_destination}"
+
       script = <<-BASH
 #!/bin/sh
 
-if type -p chef-solo > /dev/null; then
-  echo "Using chef-solo at `which chef-solo`"
-else
-  aptitude update
-  apt-get install -y ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl rubygems
-  gem install chef --no-ri --no-rdoc --version "#{chef_version}"
-fi
+curl -s -o /tmp/chef-omnibus-install.sh https://www.opscode.com/chef/install.sh
+chmod +x /tmp/chef-omnibus-install.sh
+/tmp/chef-omnibus-install.sh > /tmp/chef-omnibus-install.log
+
 BASH
+
       put script, "/tmp/chef-install.sh", :via => :scp
       run iron_chef.prepare_sudo_cmd("chmod +x /tmp/chef-install.sh")
       run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
     end
 
-    %w(redhat centos amazon).each do |host_os|
-      desc "Installs chef via yum on a #{host_os} host."
-      task host_os do
-        run "mkdir -p #{chef_destination}"
-        script = <<-BASH
-#!/bin/sh
-
-if type -p chef-solo > /dev/null; then
-  echo "Using chef-solo at `which chef-solo`"
-else
-  yum update -y
-  rpm -Uvh http://rbel.frameos.org/rbel6
-  yum-config-manager --enable rhel-6-server-optional-rpms
-  yum install -y ruby ruby-devel ruby-ri ruby-rdoc ruby-shadow gcc gcc-c++ automake autoconf make curl dmidecode
-  cd /tmp
-  curl -s -o rubygems-1.8.10.tgz http://production.cf.rubygems.org/rubygems/rubygems-1.8.10.tgz
-  tar zxf rubygems-1.8.10.tgz
-  cd rubygems-1.8.10
-  ruby setup.rb --no-format-executable
-  gem install chef --no-ri --no-rdoc --version "#{chef_version}"
-fi
-BASH
-        put script, "/tmp/chef-install.sh", :via => :scp
-        run iron_chef.prepare_sudo_cmd("chmod +x /tmp/chef-install.sh")
-        run iron_chef.prepare_sudo_cmd("/tmp/chef-install.sh > /tmp/chef-install.log")
-      end
-    end
   end ## end bootstrap namespace ##
 end
