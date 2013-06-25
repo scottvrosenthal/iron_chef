@@ -202,5 +202,5 @@ cap env:nodes
 ```
 
 ## Changelog
-  - v0.0.4
+  - v0.0.5
     * Initial release
