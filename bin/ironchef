@@ -75,6 +75,7 @@ files = {
 
   "roles/.gitkeep" => '',
   "cookbooks/.gitkeep" => '',
+  "site-cookbooks/.gitkeep" => '',
   "data_bags/global.json" => "{\n\"id\": \"global\"\n}",
 
   "README.md" => "\# #{base}"

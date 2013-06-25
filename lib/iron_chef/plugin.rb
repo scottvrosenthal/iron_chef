@@ -27,7 +27,7 @@ module IronChef
     end
 
     def env_nodes_list
-      location = fetch(:chef_environment_dir, "environments")
+      location = fetch(:chef_environment_dir, 'environments')
       env_nodes_path = Dir.glob("./#{location}/#{chef_environment}.yml")[0]
 
       raise "Env Node YAML file #{env_nodes_path} not found" unless env_nodes_path && File.exists?(env_nodes_path)

@@ -5,11 +5,11 @@ Capistrano::Configuration.instance.load do
 
   set :chef_source, '.'
   set :chef_destination, '/tmp/chef'
-  set :chef_cookbooks,   %w(cookbooks)
+  set :chef_cookbooks,   %w(cookbooks site-cookbooks)
   set :chef_log_level, 'info'
   set :chef_command, '/opt/chef/embedded/bin/ruby /opt/chef/bin/chef-solo -c solo.rb'
   set :chef_parameters, '--color'
-  set :chef_excludes, %w(*.md .git .svn nodes)
+  set :chef_excludes, %w(.git .svn nodes)
   set :chef_stream_output, false
   set :chef_parallel_rsync, true
   set :chef_parallel_rsync_pool_size, 10
@@ -135,7 +135,7 @@ Capistrano::Configuration.instance.load do
           yml_env_node_file = File.join(nodes_location, "#{name}-server1.yml")
           unless File.exists?(yml_env_node_file)
             File.open(yml_env_node_file, "w") do |f|
-              f.puts "json:\n  environment: #{name}\n\nroles:\n  - redhat\n\nrecipes:\n  - ntp\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
+              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - redhat\n\nrecipes:\n  - ntp\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
             end
           end
           puts "Created chef environment config files for: #{name}"
