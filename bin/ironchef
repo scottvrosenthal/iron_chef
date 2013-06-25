@@ -41,6 +41,7 @@ FileUtils.mkdir_p("#{base}/nodes")
 
 files = {
   ".gitignore" => unindent(<<-FILE),
+    /cookbooks
     /tmp
     
   FILE
