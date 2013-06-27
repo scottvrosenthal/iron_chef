@@ -194,7 +194,7 @@ Is the same as:
 cap env:nodes
 ```
 
-Use `chef:clear` when chef apply config throws an exception because there's a problem with a cookbook or you need to start over:
+Use `chef:clear` when `chef:apply` config throws an exception due to an issue with a cookbook or you need to start over:
 
 ```sh
 cap staging-web1 chef:clear
