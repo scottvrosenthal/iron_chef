@@ -72,12 +72,11 @@ Capistrano::Configuration.instance.load do
   ## begin env tasks
 
   unless exists?(:chef_environments)
-    location = fetch(:chef_environment_dir, 'environments')
-    set :chef_environments, Dir["./#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
+    set :chef_environments, Dir["./#{chef_environment_dir}/*.rb"].map { |f| File.basename(f, ".rb") }
   end
 
   desc "Target individual nodes."
-  task(:nodes) do
+  task :nodes, :except => { :nochef => true }  do
 
       nodes_available = iron_chef.nodes_list
 
@@ -87,16 +86,12 @@ Capistrano::Configuration.instance.load do
 
   chef_environments.each do |name|
     desc "Set the target chef environment to '#{name}'."
-    task(name) do
-      location = fetch(:chef_environment_dir, 'environments')
+    task name, :except => { :nochef => true }  do
       set :chef_environment, name.to_sym
-      if File.exist?(File.join(location, "#{chef_environment}.rb"))
-        load "./#{location}/#{chef_environment}"
+      if File.exist?(File.join(chef_environment_dir, "#{chef_environment}.rb"))
+        load "./#{chef_environment_dir}/#{chef_environment}"
 
-
-        env_nodes = YAML.load(File.read("./#{location}/#{chef_environment}.yml"))["nodes"]
-
-        iron_chef.tasks_for_env(env_nodes)
+        iron_chef.tasks_for_env(iron_chef.env_nodes_list)
 
       end
     end
@@ -115,27 +110,19 @@ Capistrano::Configuration.instance.load do
   namespace :env do
 
     desc "Stub out the chef environment config files."
-    task :prepare do
-      location = fetch(:chef_environment_dir, 'environments')
-      FileUtils.mkdir_p(location)
+    task :prepare, :except => { :nochef => true } do
+      FileUtils.mkdir_p(chef_environment_dir)
       chef_environments.each do |name|
-        rb_env_file = File.join(location, "#{name}.rb")
+        rb_env_file = File.join(chef_environment_dir, "#{name}.rb")
         unless File.exists?(rb_env_file)
           File.open(rb_env_file, "w") do |f|
             f.puts "# #{name.upcase}-specific chef environment configuration"
             f.puts "# please put general chef environment config in config/deploy.rb"
           end
-          yml_env_file = File.join(location, "#{name}.yml")
-          unless File.exists?(yml_env_file)
-            File.open(yml_env_file, "w") do |f|
-              f.puts "# #{name.upcase}-specific chef environment node list\nnodes:\n  - #{name}-server1"
-            end
-          end
-          nodes_location  = fetch(:chef_nodes_dir, 'nodes')
-          yml_env_node_file = File.join(nodes_location, "#{name}-server1.yml")
+          yml_env_node_file = File.join(chef_nodes_dir, "#{name}-server1.yml")
           unless File.exists?(yml_env_node_file)
             File.open(yml_env_node_file, "w") do |f|
-              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - redhat\n\nrecipes:\n  - ntp\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
+              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - app_server\n\nrecipes:\n  - ntp\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
             end
           end
           puts "Created chef environment config files for: #{name}"
@@ -161,7 +148,7 @@ Capistrano::Configuration.instance.load do
   namespace :bootstrap do
 
     desc "Installs chef via omnibus on host."
-    task :chef do
+    task :chef, :except => { :nochef => true }  do
       run "mkdir -p #{chef_destination}"
 
       script = <<-BASH

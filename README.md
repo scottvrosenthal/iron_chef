@@ -1,5 +1,7 @@
 # Iron Chef gem
 
+*"Treat your servers like cattle, not like pets."*
+
 [![Build Status](https://www.travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://www.travis-ci.org/scottvrosenthal/iron_chef)
 
   - A scrappy DevOps gem
@@ -32,13 +34,12 @@ The `ironchef` command creates the following DevOps project under the folder `pr
 ├── config
 │   └── deploy.rb
 ├── cookbooks
+├── site-cookbooks
 ├── data_bags
 │   └── global.json
 ├── environments
 │   ├── production.rb
-│   ├── production.yml
 │   ├── staging.rb
-│   └── staging.yml
 ├── nodes
 │   ├── production-server1.yml
 │   └── staging-server1.yml
@@ -120,7 +121,7 @@ Here's an example of what a `node.yml` should contain:
 
 ```yml
 json:
-  environment: staging
+  chef_environment: staging
 
 roles:
 
@@ -136,12 +137,14 @@ Another example with roles and recipes:
 
 ```yml
 json:
-  environment: staging
+  chef_environment: staging
   mysql:
     server_root_password: n1ceRand0mP@sswordItIs
 
 roles:
-  - centos
+  - web_server
+  - app_server
+  - db_server
   - rails
 
 recipes:
@@ -157,25 +160,15 @@ server:
 
 Iron Chef environments are based on the capistrano multistage idea with a twist.
 
-The environments folder allows you to group nodes into environments using the `env_name.yml` file.
+The environments folder allows you to group nodes into chef environments using `['json']['chef_environment']` attribute in a `node.yml` file.
 
-Example `staging.yml` file:
-
-```yml
-nodes:
-  - staging-db1
-  - staging-web1
-  - staging-web2
-  - staging-web3
-```
-
-This allows the target environment to only run tasks for nodes listed in `staging.yml` file:
+This allows the target environment to only run tasks for nodes where `['json']['chef_environment']` attribute equals staging:
 
 ```sh
 cap staging staging-web{1,2,3} chef:clear
 ```
 
-Also by targeting an environment only nodes defined in the `env_name.yml` will be available as tasks:
+Also when targeting a chef environment only nodes having that `['json']['chef_environment']` attribute will be available as tasks:
 
 ```sh
 cap staging all_nodes chef:apply
@@ -201,6 +194,12 @@ Is the same as:
 cap env:nodes
 ```
 
+Use `chef:clear` when chef apply config throws an exception because there's a problem with a cookbook or you need to start over:
+
+```sh
+cap staging-web1 chef:clear
+```
+
 ## Changelog
-  - v0.0.6
+  - v0.0.7
     * Initial release

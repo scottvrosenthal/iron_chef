@@ -1,6 +1,14 @@
 module IronChef
   module Plugin
 
+    def fetch_chef_environment_dir
+      fetch(:chef_environment_dir, 'environments')
+    end
+
+    def fetch_chef_nodes_dir
+      fetch(:chef_nodes_dir, 'nodes')
+    end
+
     def find_node(node_path)
       raise "Node YAML file #{node_path} not found" unless node_path && File.exists?(node_path)
 
@@ -13,7 +21,7 @@ module IronChef
     end
 
     def node(node_name)
-      nodes_location  = fetch(:chef_nodes_dir, 'nodes')
+      nodes_location  = fetch_chef_nodes_dir
       unless node_path = Dir.glob("./#{nodes_location}/**/#{node_name}.yml")[0]
         abort "Node '#{node_name}' is unknown. Known nodes are #{nodes_list.join(', ')}."
       end
@@ -21,20 +29,35 @@ module IronChef
     end
 
     def nodes_list
-      nodes_location  = fetch(:chef_nodes_dir, 'nodes')
+      nodes_location  = fetch_chef_nodes_dir
       nodes_available = Dir.glob("./#{nodes_location}/**/*.yml").map { |f| File.basename(f, '.*') }
       nodes_available.sort
     end
 
     def env_nodes_list
-      location = fetch(:chef_environment_dir, 'environments')
-      env_nodes_path = Dir.glob("./#{location}/#{chef_environment}.yml")[0]
+      nodes_location  = fetch_chef_nodes_dir
+      nodes_available = Dir.glob("./#{nodes_location}/**/*.yml").map { |f| File.basename(f, '.*') }
+      env_nodes_available = []
+      nodes_available.each do |node_name|
+        node_config = node(node_name)
+        if node_config['json']
+          if node_config['json']['chef_environment']
+            node_env = node_config['json']['chef_environment']
+            if "#{chef_environment}" == "#{node_env}"
+              env_nodes_available << node_config['node_name']
+            end
+          else
+            puts "Node '#{node_config['node_name']}' ['json']['chef_environment'] attribute is empty or missing."
+          end
+        else
+          puts "Node '#{node_config['node_name']}' ['json'] attribute is empty or missing."
+        end
+      end
 
-      raise "Env Node YAML file #{env_nodes_path} not found" unless env_nodes_path && File.exists?(env_nodes_path)
-
-      env_nodes_available = IronChef::ERB.read_erb_yaml(env_nodes_path)
-      nodes_available = env_nodes_available['nodes']
-      nodes_available.sort
+      if env_nodes_available.size == 0
+        abort "No nodes found for chef environment '#{chef_environment}'. Known nodes are #{nodes_available.join(', ')}."
+      end
+      env_nodes_available.sort
     end
 
     def tasks_for_env(nodes_names)
@@ -51,8 +74,11 @@ module IronChef
             task(node_config['node_name']) do
               role :server, node_config['server']['host'], { node_name: node_config['node_name'] }
             end
-
+          else
+            puts "Node '#{node_config['node_name']}' ['server']['host'] attribute is empty or missing."
           end
+        else
+          puts "Node '#{node_config['node_name']}' ['server'] attribute is empty or missing."
         end
       end
 
@@ -191,7 +217,6 @@ fi
     end
 
     def chef(command = :why_run)
-      prepare_chef_cmd = "#{chef_command} #{chef_parameters}"
       chef_cmd = "cd #{chef_destination} && #{chef_command} #{chef_parameters}"
       flag = command == :why_run ? '--why-run' : ''
 
