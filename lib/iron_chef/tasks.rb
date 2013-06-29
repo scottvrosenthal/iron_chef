@@ -7,7 +7,7 @@ Capistrano::Configuration.instance.load do
   set :chef_destination, '/tmp/chef'
   set :chef_cookbooks,   %w(cookbooks site-cookbooks)
   set :chef_log_level, 'info'
-  set :chef_command, '/opt/chef/embedded/bin/ruby /opt/chef/bin/chef-solo -c solo.rb'
+  set :chef_command, '/opt/chef/embedded/bin/ruby /opt/chef/bin/chef-solo -c /tmp/chef/solo.rb'
   set :chef_parameters, '--color'
   set :chef_excludes, %w(.git .svn nodes)
   set :chef_stream_output, false
