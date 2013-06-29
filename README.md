@@ -201,5 +201,5 @@ cap staging-web1 chef:clear
 ```
 
 ## Changelog
-  - v0.0.7
+  - v0.0.8
     * Initial release
