@@ -18,6 +18,7 @@ Capistrano::Configuration.instance.load do
   set :chef_runner, nil
   set :chef_lock_file, '/tmp/chef.lock'
   set :chef_nodes_dir, 'nodes'
+  set :chef_data_bags_dir, 'data_bags'
   set :chef_environment_dir, 'environments'
 
   namespace :chef do
@@ -122,7 +123,13 @@ Capistrano::Configuration.instance.load do
           yml_env_node_file = File.join(chef_nodes_dir, "#{name}-server1.yml")
           unless File.exists?(yml_env_node_file)
             File.open(yml_env_node_file, "w") do |f|
-              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - app_server\n\nrecipes:\n  - ntp\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
+              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - app_server\n\nrecipes:\n  - commons\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
+            end
+          end
+          json_env_data_bag_file = File.join("#{chef_data_bags_dir}/environments", "#{name}.json")
+          unless File.exists?(json_env_data_bag_file)
+            File.open(json_env_data_bag_file, "w") do |f|
+              f.puts "{\n\"id\": \"#{name}\",\n\"description\": \"environments #{name} data_bag_item\"\n}"
             end
           end
           puts "Created chef environment config files for: #{name}"

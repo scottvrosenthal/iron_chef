@@ -38,6 +38,7 @@ FileUtils.mkdir_p(base)
 
 FileUtils.mkdir_p("#{base}/environments")
 FileUtils.mkdir_p("#{base}/nodes")
+FileUtils.mkdir_p("#{base}/data_bags/environments")
 
 files = {
   ".gitignore" => unindent(<<-FILE),
@@ -103,8 +104,22 @@ files = {
   FILE
 
   "cookbooks/.gitkeep" => '',
-  "site-cookbooks/.gitkeep" => '',
-  "data_bags/global.json" => "{\n\"id\": \"global\"\n}",
+
+  "site-cookbooks/commons/recipes/default.rb" => unindent(<<-FILE),
+  # retrieve environment specific data bag item
+  env = Chef::DataBagItem.load('environments', node['chef_environment'])
+  Chef::Log.info("Loaded environments information from DataBagItem env[\#{env['id']}]")
+  Chef::Log.info("Loaded environments information from DataBagItem env[\#{env['description']}]")
+
+  # retrieve global settings specific data bag item
+  gs_default = Chef::DataBagItem.load('global_settings', 'default')
+  Chef::Log.info("Loaded global settings information from DataBagItem gs_default[\#{gs_default['id']}]")
+  Chef::Log.info("Loaded global settings information from DataBagItem gs_default[\#{gs_default['description']}]")
+  FILE
+
+  "site-cookbooks/commons/attributes/default.rb" => '',
+
+  "data_bags/global_settings/default.json" => "{\n\"id\": \"default\",\n\"description\": \"global settings default data bag item\"\n}",
 
   "README.md" => "\# #{base}"
 }

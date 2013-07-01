@@ -34,16 +34,29 @@ The `ironchef` command creates the following DevOps project under the folder `pr
 ├── config
 │   └── deploy.rb
 ├── cookbooks
-├── site-cookbooks
 ├── data_bags
-│   └── global.json
+│   ├── environments
+│   │   ├── production.json
+│   │   └── staging.json
+│   └── global_settings
+│       └── default.json
 ├── environments
 │   ├── production.rb
 │   ├── staging.rb
 ├── nodes
 │   ├── production-server1.yml
 │   └── staging-server1.yml
-└── roles
+├── roles
+│   ├── app_server.rb
+│   ├── base_server.rb
+│   ├── db_server.rb
+│   └── web_server.rb
+└── site-cookbooks
+    └── commons
+        ├── attributes
+        │   └── default.rb
+        └── recipes
+            └── default.rb
 ```
 
 ## Show commands
@@ -200,6 +213,22 @@ Use `chef:clear` when `chef:apply` throws an exception due to an issue with a co
 cap staging-web1 chef:clear
 ```
 
+## Data Bags
+
+Here's an example of how to access data bags per environment or global settings in a recipe:
+
+```ruby
+# retrieve environment specific data bag item
+env = Chef::DataBagItem.load('environments', node['chef_environment'])
+Chef::Log.info("Loaded environments information from DataBagItem env[#{env['id']}]")
+Chef::Log.info("Loaded environments information from DataBagItem env[#{env['description']}]")
+
+# retrieve global settings specific data bag item
+gs_default = Chef::DataBagItem.load('global_settings', 'default')
+Chef::Log.info("Loaded global settings information from DataBagItem gs_default[#{gs_default['id']}]")
+Chef::Log.info("Loaded global settings information from DataBagItem gs_default[#{gs_default['description']}]")
+```
+
 ## Changelog
-  - v0.0.8
+  - v0.0.9
     * Initial release

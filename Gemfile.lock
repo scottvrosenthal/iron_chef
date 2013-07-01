@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    iron_chef (0.0.7)
+    iron_chef (0.0.9)
       capistrano (>= 2.15.4)
       json
 
