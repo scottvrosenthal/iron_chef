@@ -105,6 +105,30 @@ module IronChef
 
     end
 
+    def dump_nodes_json
+
+      nodes_available = nodes_list
+
+      nodes_location  = fetch_chef_nodes_dir
+
+      FileUtils.mkdir_p("./tmp/#{nodes_location}")
+
+      nodes_available.each do |node_name|
+        node_config = node(node_name)
+
+        node_dna = {
+          :run_list => node_run_list(node_config)
+        }.merge(node_config['json'])
+
+        node_dna_json_file = "./tmp/#{nodes_location}/#{node_config['node_name']}.json"
+        File.open(node_dna_json_file, "w") do |f|
+          f.puts node_dna.to_json
+        end
+
+        puts "Created #{node_dna_json_file}"
+      end
+    end
+
     def node_run_list(node_config)
       run_list = []
       run_list += node_config['roles'].map   { |r| "role[#{r}]"   } if node_config['roles']

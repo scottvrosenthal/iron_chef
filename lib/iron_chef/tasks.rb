@@ -68,6 +68,11 @@ Capistrano::Configuration.instance.load do
       puts iron_chef.nodes_list
     end
 
+    desc "Dump each node's dynamically generated node.json file to local ./tmp/#{chef_nodes_dir} directory."
+    task :dump_nodes_json, :except => { :nochef => true } do
+      iron_chef.dump_nodes_json
+    end
+
   end ## end chef namespace ##
 
   ## begin env tasks

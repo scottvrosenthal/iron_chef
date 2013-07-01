@@ -69,20 +69,21 @@ cap -T
 ### Example output
 
 ```sh
-cap bootstrap:chef   # Installs chef via omnibus on host.
-cap chef:apply       # Applies the current chef config to the server.
-cap chef:clear       # Clears the chef destination folder on the server.
-cap chef:nodes       # Shows all nodes available for chef config.
-cap chef:unlock      # Clears the chef lockfile on the server.
-cap chef:update_code # Pushes the current chef configuration to the server.
-cap chef:why_run     # Runs chef with --why-run flag to to understand the decisions it makes.
-cap env:nodes        # Shows chef environment nodes available for chef apply config.
-cap env:prepare      # Stub out the chef environment config files.
-cap invoke           # Invoke a single command on the remote servers.
-cap nodes            # Target individual nodes.
-cap production       # Set the target chef environment to 'production'.
-cap shell            # Begin an interactive Capistrano session.
-cap staging          # Set the target chef environment to 'staging'.
+cap bootstrap:chef       # Installs chef via omnibus on host.
+cap chef:apply           # Applies the current chef config to the server.
+cap chef:clear           # Clears the chef destination folder on the server.
+cap chef:dump_nodes_json # Dump each node's dynamically generated node.json file to local ./tmp/nodes directory.
+cap chef:nodes           # Shows all nodes available for chef config.
+cap chef:unlock          # Clears the chef lockfile on the server.
+cap chef:update_code     # Pushes the current chef configuration to the server.
+cap chef:why_run         # Runs chef with --why-run flag to to understand the decisions it makes.
+cap env:nodes            # Shows chef environment nodes available for chef apply config.
+cap env:prepare          # Stub out the chef environment config files.
+cap invoke               # Invoke a single command on the remote servers.
+cap nodes                # Target individual nodes.
+cap production           # Set the target chef environment to 'production'.
+cap shell                # Begin an interactive Capistrano session.
+cap staging              # Set the target chef environment to 'staging'.
 ```
 
 ## Example commands
@@ -169,6 +170,14 @@ server:
   host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
 ```
 
+If you want to see how the node.yaml file's json attribute will be converted to the corresponding node.json file during a `chef:apply` run:
+
+```sh
+cap chef:dump_nodes_json
+```
+
+`chef:dump_nodes_json` is useful for debugging the generated node.json per node or allows you to import the node.json files into [chef server](http://docs.opscode.com/chef_overview_server.html) in the future.
+
 # Environments
 
 Iron Chef environments are based on the capistrano multistage idea with a twist.
@@ -213,6 +222,14 @@ Use `chef:clear` when `chef:apply` throws an exception due to an issue with a co
 cap staging-web1 chef:clear
 ```
 
+Add a new environment by adding to the `:chef_environments` variable in `config/deploy.rb` like so:
+
+```ruby
+set :chef_environments, %w(staging beta production)
+```
+
+Then run `cap env:prepare` to stub out the new `beta` environment.
+
 ## Data Bags
 
 Here's an example of how to access data bags per environment or global settings in a recipe:
@@ -230,5 +247,5 @@ Chef::Log.info("Loaded global settings information from DataBagItem gs_default[#
 ```
 
 ## Changelog
-  - v0.0.9
+  - v0.0.10
     * Initial release
