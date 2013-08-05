@@ -4,7 +4,7 @@
 
 [![Build Status](https://www.travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://www.travis-ci.org/scottvrosenthal/iron_chef)
 
-  - A scrappy DevOps gem
+  - A decentralized approach to managing servers
   - Simple [Chef Solo](http://docs.opscode.com/chef_solo.html) wrapper
   - Built as a [capistrano](https://github.com/capistrano/capistrano) plugin
   - Update multiple nodes in parallel
