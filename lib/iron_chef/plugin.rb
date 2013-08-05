@@ -121,7 +121,7 @@ module IronChef
         }.merge(node_config['json'])
 
         node_dna_json_file = "./tmp/#{nodes_location}/#{node_config['node_name']}.json"
-        File.open(node_dna_json_file, "w") do |f|
+        File.open(node_dna_json_file, 'w') do |f|
           f.puts node_dna.to_json
         end
 
@@ -146,11 +146,11 @@ module IronChef
       solo_rb = <<-RUBY
       solo true
       chef_root = File.expand_path(File.dirname(__FILE__))
-      file_cache_path chef_root
+      file_cache_path '#{chef_file_cache_dir}'
       cookbook_path   [ #{cookbook_paths} ]
-      role_path       File.join(chef_root, "roles")
-      data_bag_path   File.join(chef_root, "data_bags")
-      json_attribs    File.join(chef_root, "node.json")
+      role_path       File.join(chef_root, 'roles')
+      data_bag_path   File.join(chef_root, 'data_bags')
+      json_attribs    File.join(chef_root, 'node.json')
       log_level "#{chef_log_level}".to_sym
       RUBY
       put solo_rb, "#{chef_destination}/solo.rb", :via => :scp
@@ -199,6 +199,9 @@ module IronChef
       run "mkdir -p #{chef_destination}"
       release_chef_client_lock
       run "chown -R $USER: #{chef_destination}"
+      run "mkdir -p #{chef_file_cache_dir}"
+    rescue
+      puts cyan_text('Try running `cap node_name chef:clear` to clear chef folders for this node.')
     end
 
     def why_run
@@ -227,7 +230,7 @@ fi
     end
 
     def release_chef_client_lock
-      run prepare_sudo_cmd("rm -f #{chef_destination}/chef-client-running.pid; true")
+      run prepare_sudo_cmd("rm -f #{chef_file_cache_dir}/chef-client-running.pid; true")
     end
 
     def prepare_sudo_cmd(cmd)
@@ -265,6 +268,10 @@ fi
 
     def red_text(text)
       "\033[0;31m#{text}\033[0m"
+    end
+
+    def cyan_text(text)
+      "\033[0;36m#{text}\033[0m"
     end
     
   end

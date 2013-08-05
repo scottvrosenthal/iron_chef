@@ -21,10 +21,10 @@ gem install 'iron_chef'
 ## Bootstrap a new DevOps project
 
 ```sh
-ironchef project-name-devops
+ironchef devops-project-name
 ```
 
-The `ironchef` command creates the following DevOps project under the folder `project-name-devops` to get you started.
+The `ironchef` command creates the following DevOps project under the folder `devops-project-name` to get you started.
 
 ```ascii
 .
@@ -48,8 +48,6 @@ The `ironchef` command creates the following DevOps project under the folder `pr
 │   └── staging-server1.yml
 ├── roles
 │   ├── app_server.rb
-│   ├── base_server.rb
-│   ├── db_server.rb
 │   └── web_server.rb
 └── site-cookbooks
     └── commons
@@ -245,7 +243,33 @@ gs_default = Chef::DataBagItem.load('global_settings', 'default')
 Chef::Log.info("Loaded global settings information from DataBagItem gs_default[#{gs_default['id']}]")
 Chef::Log.info("Loaded global settings information from DataBagItem gs_default[#{gs_default['description']}]")
 ```
+## Capistrano Config Variables
+
+These are the defaults in case they need to be changed for your environments.
+
+They can easily be overridden inside your DevOps project's `config/deploy.rb` & `environments/chef_environment.rb` files.
+
+```ruby
+set :chef_source, '.'
+set :chef_destination, '/tmp/chef'
+set :chef_cookbooks,   %w(cookbooks site-cookbooks)
+set :chef_log_level, 'info'
+set :chef_command, '/opt/chef/embedded/bin/ruby /opt/chef/bin/chef-solo -c /tmp/chef/solo.rb'
+set :chef_parameters, '--color'
+set :chef_excludes, %w(.git .svn nodes)
+set :chef_stream_output, false
+set :chef_parallel_rsync, true
+set :chef_parallel_rsync_pool_size, 10
+set :chef_write_to_file, nil
+set :chef_lock_file, '/tmp/chef.lock'
+set :chef_file_cache_dir, '/tmp/chef_cache'
+set :chef_nodes_dir, 'nodes'
+set :chef_data_bags_dir, 'data_bags'
+set :chef_environment_dir, 'environments'
+```
 
 ## Changelog
   - v0.0.10
     * Initial release
+  - v0.0.11
+    * Make chef_file_cache_dir available as a variable & default to /tmp/chef_cache

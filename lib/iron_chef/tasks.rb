@@ -13,10 +13,9 @@ Capistrano::Configuration.instance.load do
   set :chef_stream_output, false
   set :chef_parallel_rsync, true
   set :chef_parallel_rsync_pool_size, 10
-  set :chef_syntax_check, false
   set :chef_write_to_file, nil
-  set :chef_runner, nil
   set :chef_lock_file, '/tmp/chef.lock'
+  set :chef_file_cache_dir, '/tmp/chef_cache'
   set :chef_nodes_dir, 'nodes'
   set :chef_data_bags_dir, 'data_bags'
   set :chef_environment_dir, 'environments'
@@ -60,6 +59,7 @@ Capistrano::Configuration.instance.load do
     desc "Clears the chef destination folder on the server."
     task :clear, :except => { :nochef => true } do
       run iron_chef.prepare_sudo_cmd("rm -rf #{chef_destination}/*")
+      run iron_chef.prepare_sudo_cmd("rm -rf #{chef_file_cache_dir}/*")
       iron_chef.unlock
     end
 

@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    iron_chef (0.0.10)
-      capistrano (>= 2.15.4)
+    iron_chef (0.0.11)
+      capistrano (~> 2.15)
       json
 
 GEM

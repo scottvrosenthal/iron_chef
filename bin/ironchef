@@ -75,23 +75,9 @@ files = {
 
   FILE
 
-  "roles/base_server.rb" => unindent(<<-FILE),
-    name "base_server"
-    description "Base Server Role"
-    # run_list
-    # default_attributes
-  FILE
-
   "roles/app_server.rb" => unindent(<<-FILE),
     name "app_server"
     description "Application Server Role"
-    # run_list
-    # default_attributes
-  FILE
-
-  "roles/db_server.rb" => unindent(<<-FILE),
-    name "db_server"
-    description "Database Server Role"
     # run_list
     # default_attributes
   FILE
@@ -104,6 +90,10 @@ files = {
   FILE
 
   "cookbooks/.gitkeep" => '',
+
+  "tmp/.gitkeep" => '',
+
+  "site-cookbooks/.gitkeep" => '',
 
   "site-cookbooks/commons/recipes/default.rb" => unindent(<<-FILE),
   # retrieve environment specific data bag item
