@@ -57,10 +57,14 @@ The `ironchef` command creates the following DevOps project under the folder `de
             └── default.rb
 ```
 
+## Demo DevOps project
+
+[https://github.com/scottvrosenthal/ironchef-demo](https://github.com/scottvrosenthal/ironchef-demo)
+
 ## Show commands
 
 ```sh
-cd project-name-devops
+cd devops-project-name
 cap -T
 ```
 
