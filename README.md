@@ -276,21 +276,25 @@ Using the default iron_chef gem settings both the `cookbooks` & `site-cookbooks`
 
 Remember the `site-cookbooks` is where you put your custom cookbooks.
 
-And the `cookbooks` folder's purpose is for vendor cookbooks, this folder will get managed when you use chef cookbook manager gems.
+The `cookbooks` folder's purpose is for vendor cookbooks (see below).
 
 ## Chef Cookbook Manager gems
+
+If you're new to chef cookbooks, I'd recommend you start with `librarian-chef` first.
 
 #### [librarian-chef](https://github.com/applicationsonline/librarian-chef)
 
   - add the gem to your DevOps project's Gemfile
   - read up on the gem for commands: [librarian-chef](https://github.com/applicationsonline/librarian-chef)
+  - `librarian-chef` will manage the `cookbooks` folder by default
 
 #### [berkshelf](https://github.com/RiotGames/berkshelf)
 
   - add the gem to your DevOps project's Gemfile
   - run `berks init` and say no to conflict with Gemfile
   - read up on the gem for commands: [berkshelf.com](http://berkshelf.com/)
-  - to tell berkshelf copy the vendor cookbooks to the `cookbooks` folder
+  - `berks install` will download the cookbooks, but it doesn't copy them by default to the `cookbooks` folder
+  - after you `berks install` you need to copy the vendor cookbooks to the `cookbooks` folder before `chef:apply`
     * run `berks install --path cookbooks`
 
 ## Changelog
