@@ -288,14 +288,18 @@ If you're new to chef cookbooks, I'd recommend you start with `librarian-chef` f
   - read up on the gem for commands: [librarian-chef](https://github.com/applicationsonline/librarian-chef)
   - `librarian-chef` will manage the `cookbooks` folder by default
 
+***
+
 #### [berkshelf](https://github.com/RiotGames/berkshelf)
 
   - add the gem to your DevOps project's Gemfile
   - run `berks init` and say no to conflict with Gemfile
   - read up on the gem for commands: [berkshelf.com](http://berkshelf.com/)
   - `berks install` will download the cookbooks, but it doesn't copy them by default to the `cookbooks` folder
-  - after you `berks install` you need to copy the vendor cookbooks to the `cookbooks` folder before `chef:apply`
-    * run `berks install --path cookbooks`
+  - after you `berks install` you need to copy the vendor cookbooks to the `cookbooks`
+    * before a `chef:apply` run `berks install --path cookbooks`
+
+***
 
 ## Changelog
   - v0.0.10
