@@ -270,7 +270,7 @@ set :chef_environment_dir, 'environments'
 
 ## Adding to a remote git repo
 
-  - `git add cookbooks/.gitkeep`
+  - `git add -f cookbooks/.gitkeep`
 
 Using the default iron_chef gem settings both the `cookbooks` & `site-cookbooks` folders are required by the chef client on the server.
 
