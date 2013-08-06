@@ -268,6 +268,31 @@ set :chef_data_bags_dir, 'data_bags'
 set :chef_environment_dir, 'environments'
 ```
 
+## Adding to a remote git repo
+
+  - `git add cookbooks/.gitkeep`
+
+Using the default iron_chef gem settings both the `cookbooks` & `site-cookbooks` folders are required by the chef client on the server.
+
+Remember the `site-cookbooks` is where you put your custom cookbooks.
+
+And the `cookbooks` folder's purpose is for vendor cookbooks, this folder will get managed when you use chef cookbook manager gems.
+
+## Chef Cookbook Manager gems
+
+#### [librarian-chef](https://github.com/applicationsonline/librarian-chef)
+
+  - add the gem to your DevOps project's Gemfile
+  - read up on the gem for commands: [librarian-chef](https://github.com/applicationsonline/librarian-chef)
+
+#### [berkshelf](https://github.com/RiotGames/berkshelf)
+
+  - add the gem to your DevOps project's Gemfile
+  - run `berks init` and say no to conflict with Gemfile
+  - read up on the gem for commands: [berkshelf.com](http://berkshelf.com/)
+  - to tell berkshelf copy the vendor cookbooks to the `cookbooks` folder
+    * run `berks install --path cookbooks`
+
 ## Changelog
   - v0.0.10
     * Initial release
