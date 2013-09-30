@@ -59,11 +59,11 @@ The `ironchef` command creates the following DevOps project under the folder `de
 
 ## Demo DevOps project
 
-  - [How to use ironchef to setup an AWS EC2 instance with nginx](https://github.com/scottvrosenthal/ironchef-demo)
+  - [Shows how to use ironchef to setup an AWS EC2 instance with nginx](https://github.com/scottvrosenthal/ironchef-demo)
  
 ## Rails Template DevOps project
 
-  - [ironchef template to build an AWS EC2 instance with rails, nginx, unicorn, mysql client](https://github.com/scottvrosenthal/ironchef-rails-template)
+  - [An ironchef starter template for building an AWS EC2 instance with rvm, rails, nginx, unicorn, mysql client](https://github.com/scottvrosenthal/ironchef-rails-template)
 
 ## Show commands
 
