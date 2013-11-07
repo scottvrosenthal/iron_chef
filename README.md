@@ -2,7 +2,7 @@
 
 *"Treat your servers like cattle, not like pets."*
 
-[![Build Status](https://www.travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://www.travis-ci.org/scottvrosenthal/iron_chef)
+[![Build Status](https://travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://travis-ci.org/scottvrosenthal/iron_chef)
 
   - A decentralized approach to managing servers
   - Simple [Chef Solo](http://docs.opscode.com/chef_solo.html) wrapper
