@@ -324,4 +324,6 @@ If you're new to chef cookbooks, I'd recommend you start with `librarian-chef` f
   - v0.0.11
     * Make chef_file_cache_dir available as a variable & default to /tmp/chef_cache
   - v0.0.12
-    * Added task to create a cookbook stubbed folder for site-cookbooks, inside project `cap site_cookbooks:stub`    
+    * Added task to create a cookbook stubbed folder for site-cookbooks, inside project `cap site_cookbooks:stub`
+  - v0.0.13
+    * Updated project creation to stub all files/folders for commons cookbook        

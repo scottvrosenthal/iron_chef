@@ -96,6 +96,8 @@ files = {
 
   "site-cookbooks/.keep" => '',
 
+  "site-cookbooks/commons/metadata.rb" => '',
+
   "site-cookbooks/commons/recipes/default.rb" => unindent(<<-FILE),
   # retrieve environment specific data bag item
   env = Chef::DataBagItem.load('environments', node['chef_environment'])
@@ -109,6 +111,10 @@ files = {
   FILE
 
   "site-cookbooks/commons/attributes/default.rb" => '',
+
+  "site-cookbooks/commons/files/default/.keep" => '',
+
+  "site-cookbooks/commons/templates/default/.keep" => '',
 
   "data_bags/global_settings/default.json" => "{\n\"id\": \"default\",\n\"description\": \"global settings default data bag item\"\n}",
 
