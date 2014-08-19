@@ -70,30 +70,31 @@ files = {
     ssh_options[:keys] = File.expand_path('~/your-local-path-to-ssh-key/xxxxx_keypair_ec2.pem')
     default_run_options[:pty] = true
 
+    # set :user, 'root'
     set :user, 'ec2-user'
     set :use_sudo, false
 
   FILE
 
-  "roles/app_server.rb" => unindent(<<-FILE),
-    name "app_server"
-    description "Application Server Role"
+  "roles/install_server.rb" => unindent(<<-FILE),
+    name "install_server"
+    description "Install Server Role"
     # run_list
     # default_attributes
   FILE
 
-  "roles/web_server.rb" => unindent(<<-FILE),
-    name "web_server"
-    description "Web Server Role"
+  "roles/setup_server.rb" => unindent(<<-FILE),
+    name "setup_server"
+    description "Setup Server Role"
     # run_list
     # default_attributes
   FILE
 
-  "cookbooks/.gitkeep" => '',
+  "cookbooks/.keep" => '',
 
-  "tmp/.gitkeep" => '',
+  "tmp/.keep" => '',
 
-  "site-cookbooks/.gitkeep" => '',
+  "site-cookbooks/.keep" => '',
 
   "site-cookbooks/commons/recipes/default.rb" => unindent(<<-FILE),
   # retrieve environment specific data bag item

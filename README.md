@@ -1,6 +1,6 @@
 # Iron Chef gem
 
-*"Treat your servers like cattle, not like pets."*
+*"Treat your servers like cattle, not pets."*
 
 [![Build Status](https://travis-ci.org/scottvrosenthal/iron_chef.png?branch=master)](https://travis-ci.org/scottvrosenthal/iron_chef)
 
@@ -47,8 +47,8 @@ The `ironchef` command creates the following DevOps project under the folder `de
 │   ├── production-server1.yml
 │   └── staging-server1.yml
 ├── roles
-│   ├── app_server.rb
-│   └── web_server.rb
+│   ├── install_server.rb
+│   └── setup_server.rb
 └── site-cookbooks
     └── commons
         ├── attributes
@@ -89,10 +89,18 @@ cap invoke               # Invoke a single command on the remote servers.
 cap nodes                # Target individual nodes.
 cap production           # Set the target chef environment to 'production'.
 cap shell                # Begin an interactive Capistrano session.
+cap site_cookbook:stub   # Stub a new chef cookbook in the site-cookbooks folder.
 cap staging              # Set the target chef environment to 'staging'.
 ```
 
 ## Example commands
+
+Stub a new cookbook folder under site-cookbooks:
+
+```sh
+cap site_cookbook:stub
+Created new cookbook stub 'site-cookbooks/cookbook_stub001' in the site-cookbooks folder.
+```
 
 Use bash shortcuts to bootstrap multiple boxes at once:
 
@@ -274,11 +282,12 @@ set :chef_file_cache_dir, '/tmp/chef_cache'
 set :chef_nodes_dir, 'nodes'
 set :chef_data_bags_dir, 'data_bags'
 set :chef_environment_dir, 'environments'
+set :chef_site_cookbook_dir, 'site-cookbooks'
 ```
 
 ## Adding to a remote git repo
 
-  - `git add -f cookbooks/.gitkeep`
+  - `git add -f cookbooks/.keep`
 
 Using the default iron_chef gem settings both the `cookbooks` & `site-cookbooks` folders are required by the chef client on the server.
 
@@ -314,3 +323,5 @@ If you're new to chef cookbooks, I'd recommend you start with `librarian-chef` f
     * Initial release
   - v0.0.11
     * Make chef_file_cache_dir available as a variable & default to /tmp/chef_cache
+  - v0.0.12
+    * Added task to create a cookbook stubbed folder for site-cookbooks, inside project `cap site_cookbooks:stub`    

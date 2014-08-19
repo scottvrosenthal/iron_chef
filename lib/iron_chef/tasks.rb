@@ -19,6 +19,7 @@ Capistrano::Configuration.instance.load do
   set :chef_nodes_dir, 'nodes'
   set :chef_data_bags_dir, 'data_bags'
   set :chef_environment_dir, 'environments'
+  set :chef_site_cookbook_dir, 'site-cookbooks'
 
   namespace :chef do
 
@@ -128,7 +129,7 @@ Capistrano::Configuration.instance.load do
           yml_env_node_file = File.join(chef_nodes_dir, "#{name}-server1.yml")
           unless File.exists?(yml_env_node_file)
             File.open(yml_env_node_file, "w") do |f|
-              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - app_server\n\nrecipes:\n  - commons\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
+              f.puts "json:\n  chef_environment: #{name}\n\nroles:\n  - install_server\n\nrecipes:\n  - commons\n\nserver:\n  host: ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com"
             end
           end
           json_env_data_bag_file = File.join("#{chef_data_bags_dir}/environments", "#{name}.json")
@@ -178,4 +179,41 @@ BASH
     end
 
   end ## end bootstrap namespace ##
+
+  ## begin cookbook namespace ##
+
+  namespace :site_cookbook do
+
+    def create_site_cookbook_stub_dir(site_cookbook_stub_dir)
+      if Dir.exists?(site_cookbook_stub_dir)
+        site_cookbook_stub_dir = site_cookbook_stub_dir.succ
+        create_site_cookbook_stub_dir(site_cookbook_stub_dir)
+      else
+        FileUtils.mkdir_p(site_cookbook_stub_dir)
+        return site_cookbook_stub_dir
+      end
+    end
+
+    desc "Stub a new chef cookbook in the site-cookbooks folder."
+    task :stub, :except => { :nochef => true } do
+      site_cookbook_name = 'cookbook_stub001'
+      site_cookbook_stub_dir = "#{File.join(chef_site_cookbook_dir, site_cookbook_name)}"
+      site_cookbook_stub_dir = create_site_cookbook_stub_dir(site_cookbook_stub_dir)
+
+      default_site_cookbook_folders = %w(attributes recipes templates/default files/default)
+
+      default_site_cookbook_folders.each do |folder|
+        FileUtils.mkdir_p(File.join(site_cookbook_stub_dir, folder))
+      end
+
+      default_site_cookbook_files = %w(metadata.rb attributes/default.rb recipes/default.rb templates/default/.keep files/default/.keep)
+
+      default_site_cookbook_files.each do |file|
+        FileUtils.touch(File.join(site_cookbook_stub_dir, file))
+      end
+
+      puts "Created new cookbook stub '#{site_cookbook_stub_dir}' in the site-cookbooks folder."
+    end
+
+  end ## end cookbook namespace ##
 end
