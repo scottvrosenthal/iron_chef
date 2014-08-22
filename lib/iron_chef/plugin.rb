@@ -152,6 +152,7 @@ module IronChef
       data_bag_path   File.join(chef_root, 'data_bags')
       json_attribs    File.join(chef_root, 'node.json')
       log_level "#{chef_log_level}".to_sym
+      ssl_verify_mode "#{chef_ssl_verify_mode}".to_sym
       RUBY
       put solo_rb, "#{chef_destination}/solo.rb", :via => :scp
     end
