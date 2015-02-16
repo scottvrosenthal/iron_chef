@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 1.9.3'
   gem.required_rubygems_version = '>= 1.8.11'
 
-  gem.authors       = ['Scott Rosenthal']
+  gem.authors       = ['scottvrosenthal']
   gem.email         = ['sr7575@gmail.com']
   gem.description   = %q{Iron Chef is a lightweight Chef Solo wrapper built as a capistrano plugin}
   gem.summary       = %q{Iron Chef makes cloud server provisioning with Chef Solo powerful and easy.}
